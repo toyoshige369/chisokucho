@@ -1762,7 +1762,7 @@ function schFmtDisp(d){var dw=d.getDay();var col=dw===0?'#c94040':dw===6?'#1976d
 function schIsToday(d){return schFmtDate(d)===TODAY_STR}
 function schEventsOn(ds){
   return SCH_EVENTS.filter(function(e){return e.date===ds})
-    .sort(function(a,b){var at=a.time||'';var bt=b.time||'';return at.localeCompare(bt);});
+    .sort(function(a,b){var at=a.time||'';var bt=b.time||'';return schSortMode==='asc'?at.localeCompare(bt):bt.localeCompare(at);});
 }
 function schTasksOn(ds){
   return SCH_TASKS.filter(function(t){return t.due_date===ds})
