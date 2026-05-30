@@ -1780,7 +1780,7 @@ function schSwitchTab(tab,el){
   var navRow=document.querySelector('.sch-hdr-nav-row');
   if(navRow)navRow.style.visibility=isTask?'hidden':'visible';
   var sortBtn=document.getElementById('schSortBtn');
-  if(sortBtn)sortBtn.style.display=isTask?'none':(tab==='day'?'none':'');
+  if(sortBtn)sortBtn.style.display=isTask?'none':'';
   schRender();
 }
 function schPrev(){
@@ -1898,11 +1898,13 @@ function schRenderWeek(d){
   var hasAny=false;
   var pastItems='';var pastCount=0;
   var todayStr=schFmtDate(new Date());
-  for(var i=0;i<7;i++){
-    var dd=new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+i);
+  var weekDays=[];
+  for(var i=0;i<7;i++){weekDays.push(new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+i));}
+  if(schSortMode==='desc')weekDays.reverse();
+  weekDays.forEach(function(dd){
     var ds=schFmtDate(dd);
     var evs=schEventsOn(ds);
-    if(!evs.length)continue;
+    if(!evs.length)return;
     hasAny=true;
     var tod=schIsToday(dd);
     var isPast=ds<todayStr;
@@ -1927,7 +1929,7 @@ function schRenderWeek(d){
     } else {
       html2+=dayHtml;
     }
-  }
+  });
   if(pastCount>0){
     var pastId='sch-past-week-'+schFmtDate(ws).replace(/-/g,'');
     html2='<div class="day-head past-hdr" style="cursor:pointer;color:var(--muted);font-size:.78rem" onclick="schTogglePast(\''+pastId+'\')">'
@@ -1959,9 +1961,12 @@ function schRenderMonth(d){
   var listHtml='<div class="week-detail" style="margin-top:8px;overflow-y:auto">';
   var todayStr=schFmtDate(new Date());
   var pastListItems='';var pastListCount=0;
-  for(var day=1;day<=last.getDate();day++){
-    var dd=new Date(y,m,day);var ds=schFmtDate(dd);
-    var evs=schEventsOn(ds);if(!evs.length)continue;
+  var monthDays=[];
+  for(var day=1;day<=last.getDate();day++){monthDays.push(new Date(y,m,day));}
+  if(schSortMode==='desc')monthDays.reverse();
+  monthDays.forEach(function(dd){
+    var ds=schFmtDate(dd);
+    var evs=schEventsOn(ds);if(!evs.length)return;
     var tod=schIsToday(dd);
     var isPast=ds<todayStr;
     var dayHtml='<div class="day-head">'+schFmtDisp(dd)+(tod?'<span class="today-badge">今日</span>':'')+'</div>'
@@ -1985,7 +1990,7 @@ function schRenderMonth(d){
     } else {
       listHtml+=dayHtml;
     }
-  }
+  });
   if(pastListCount>0){
     var pastId='sch-past-month-'+y+'-'+(m+1);
     listHtml='<div class="day-head past-hdr" style="cursor:pointer;color:var(--muted);font-size:.78rem" onclick="schTogglePast(\''+pastId+'\')">'
