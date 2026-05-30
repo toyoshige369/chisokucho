@@ -1762,7 +1762,7 @@ function schFmtDisp(d){var dw=d.getDay();var col=dw===0?'#c94040':dw===6?'#1976d
 function schIsToday(d){return schFmtDate(d)===TODAY_STR}
 function schEventsOn(ds){
   return SCH_EVENTS.filter(function(e){return e.date===ds})
-    .sort(function(a,b){var at=a.time||'';var bt=b.time||'';return schSortMode==='asc'?at.localeCompare(bt):bt.localeCompare(at);});
+    .sort(function(a,b){var at=a.time||'';var bt=b.time||'';return at.localeCompare(bt);});
 }
 function schTasksOn(ds){
   return SCH_TASKS.filter(function(t){return t.due_date===ds})
@@ -1850,8 +1850,11 @@ function schRenderDay(d){
 }
 function schRenderThree(d){
   var html='<div style="display:flex;flex-direction:column;gap:6px">';
-  for(var i=0;i<3;i++){
-    var dd=new Date(d.getFullYear(),d.getMonth(),d.getDate()+i);var ds=schFmtDate(dd);
+  var threeDays=[];
+  for(var i=0;i<3;i++){threeDays.push(new Date(d.getFullYear(),d.getMonth(),d.getDate()+i));}
+  if(schSortMode==='desc')threeDays.reverse();
+  threeDays.forEach(function(dd){
+    var ds=schFmtDate(dd);
     var evs=schEventsOn(ds);var tod=schIsToday(dd);
     html+='<div class="day-card"><div class="day-head">'+schFmtDisp(dd)+(tod?'<span class="today-badge">今日</span>':'')+'</div><div class="day-card-body">';
     if(!evs.length){html+='<div class="no-item">予定なし</div>';}
@@ -1871,7 +1874,7 @@ function schRenderThree(d){
       });
     }
     html+='</div></div>';
-  }
+  });
   html+='</div>';return html;
 }
 function schRenderWeek(d){
