@@ -2801,8 +2801,9 @@ function mindRenderCard(m){
     +'</div></div>'
     +'<div class="c-meta"><span class="c-cat-badge" style="background:'+MIND_CAT_BG[m.cat]+';color:'+MIND_CAT_COLOR[m.cat]+'">'+MIND_CAT_LABEL[m.cat]+'</span>'
     +'<span class="c-tap">'+m.taps+'回</span>'
-    +'<span class="btn-more" onclick="event.stopPropagation();mindToggleMenu(event,'+m.id+')">⋮</span></div>'
-    +'<div id="cmenu-'+m.id+'" style="display:none;position:absolute;bottom:32px;right:4px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:200;min-width:80px">'
+    +'</div>'
+    +'<span class="btn-more" style="position:absolute;top:8px;right:4px" onclick="event.stopPropagation();mindToggleMenu(event,'+m.id+')">⋮</span>'
+    +'<div id="cmenu-'+m.id+'" style="display:none;position:absolute;top:24px;right:4px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:200;min-width:80px">'
     +'<div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="event.stopPropagation();mindEdit('+m.id+')">編集</div>'
     +'<div style="padding:8px 14px;font-size:.78rem;color:#c0454a;cursor:pointer" onclick="mindDelete('+m.id+')">削除</div>'
     +'</div></div>';
