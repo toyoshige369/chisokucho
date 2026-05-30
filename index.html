@@ -1802,7 +1802,7 @@ function schSelectDay(ds){schDate=new Date(ds.replace(/-/g,','));schRender()}
 function schUpdateHeader(){
   var el=document.getElementById('schHdrDate');if(!el)return;
   var today=new Date();
-  if(schTab==='day')el.textContent=schFmtDisp(schDate);
+  if(schTab==='day')el.innerHTML=schFmtDisp(schDate);
   else if(schTab==='three'){var e=new Date(schDate.getFullYear(),schDate.getMonth(),schDate.getDate()+2);var _s=schDate,_e=e;var _sc=_s.getDay()===0?'#c94040':_s.getDay()===6?'#1976d2':'';var _ec=_e.getDay()===0?'#c94040':_e.getDay()===6?'#1976d2':'';var _sd='（'+DOW[_s.getDay()]+'）';var _ed='（'+DOW[_e.getDay()]+'）';el.innerHTML=(_s.getMonth()+1)+'月'+_s.getDate()+'日'+(_sc?'<span style="color:'+_sc+'">'+_sd+'</span>':_sd)+'～'+(_e.getMonth()+1)+'月'+_e.getDate()+'日'+(_ec?'<span style="color:'+_ec+'">'+_ed+'</span>':_ed);}
   else if(schTab==='week'){var dow=schDate.getDay();var mo=dow===0?-6:1-dow;var ws=new Date(schDate.getFullYear(),schDate.getMonth(),schDate.getDate()+mo);var we=new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+6);var sameMonth=ws.getMonth()===we.getMonth();el.textContent=(ws.getMonth()+1)+'月'+ws.getDate()+'日～'+(sameMonth?'':((we.getMonth()+1)+'月'))+we.getDate()+'日';}
   else el.textContent=schDate.getFullYear()+'年'+MONTHS_JP[schDate.getMonth()];
