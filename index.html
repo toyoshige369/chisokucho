@@ -1778,7 +1778,7 @@ function schSwitchTab(tab,el){
   // タスクタブ時は日付ナビ・ソートボタンを非表示
   var isTask=tab==='task';
   var navRow=document.querySelector('.sch-hdr-nav-row');
-  if(navRow)navRow.style.display=isTask?'none':'';
+  if(navRow)navRow.style.visibility=isTask?'hidden':'visible';
   var sortBtn=document.getElementById('schSortBtn');
   if(sortBtn)sortBtn.style.display=isTask?'none':(tab==='day'?'none':'');
   schRender();
