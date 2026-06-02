@@ -2033,15 +2033,17 @@ function schRenderTask(){
   var html='<div style="padding:6px 0">';
   if(undone.length){
     html+='<div class="day-card" style="margin-bottom:8px">';
-    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 2px;border-bottom:2px solid var(--c-task);margin-bottom:6px"><span style="font-size:.84rem;font-weight:500;color:var(--c-task)">未完了（'+undone.length+'件）</span></div>';
+    html+='<div class="day-head" style="border-bottom:2px solid var(--c-task)"><span style="color:var(--c-task)">未完了（'+undone.length+'件）</span></div>';
+    html+='<div class="day-card-body">';
     sortTasks(undone).forEach(function(t){html+=buildTaskRow(t);});
-    html+='</div>';
+    html+='</div></div>';
   }
   if(done.length){
     html+='<div class="day-card">';
-    html+='<div style="margin-top:12px"></div><div style="display:flex;align-items:center;justify-content:space-between;padding:4px 2px;border-bottom:2px solid #bbb;margin-bottom:6px"><span style="font-size:.84rem;font-weight:500;color:#999">完了済み（'+done.length+'件）</span></div>';
+    html+='<div class="day-head" style="border-bottom:2px solid #bbb"><span style="color:#999">完了済み（'+done.length+'件）</span></div>';
+    html+='<div class="day-card-body">';
     sortTasks(done).forEach(function(t){html+=buildTaskRow(t);});
-    html+='</div>';
+    html+='</div></div>';
   }
   html+='</div>';
   el.innerHTML=html;
