@@ -757,6 +757,10 @@ html,body{
     <div class="hdr-title serif">Schedule</div>
     <div style="display:flex;align-items:center;gap:8px">
       <div id="schSortBtn" class="hdr-sort" onclick="schSortToggle()">↕ <span id="schSortLabel">昇順</span></div>
+      <div id="schTaskSortBtns" style="display:none;align-items:center;gap:4px">
+        <div id="schTaskSortPri" onclick="schTaskSortToggle('priority')" style="font-size:.72rem;padding:2px 8px;border-radius:20px;border:1px solid var(--accent-deep);color:#fff;background:var(--accent-deep);cursor:pointer">優先度</div>
+        <div id="schTaskSortDate" onclick="schTaskSortToggle('date')" style="font-size:.72rem;padding:2px 8px;border-radius:20px;border:1px solid var(--accent-deep);color:var(--accent-deep);cursor:pointer">日時</div>
+      </div>
       <div class="hdr-search">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </div>
@@ -1254,15 +1258,11 @@ function taskToggleName(id){
   el.style.whiteSpace=el.style.whiteSpace==='normal'?'nowrap':'normal';
 }
 function buildTaskRow(t){
-  var priColor=t.priority==='★★★'?'#c94040':t.priority==='★★'?'#F9A825':'#378ADD';
   var tDueStr=t.due_date?(t.due_date===TODAY_STR?'今日'+(t.due_time?' '+t.due_time:''):t.due_date.slice(5).replace('-','/').replace(/\/0/g,'/')+(t.due_time?' '+t.due_time:'')):'';
   return '<div class="ev-item" style="position:relative'+(t.done?';opacity:0.45':'')+'">'
     +'<div class="t-circle'+(t.done?' done':'')+'" onclick="taskToggleDone('+t.id+')"></div>'
-    +'<div style="width:3px;align-self:stretch;background:var(--c-task);flex-shrink:0"></div>'
-    +'<span class="ev-time" style="color:var(--c-task)">タスク</span>'
     +'<span class="ev-name'+(t.done?' done':'')+'" id="tname-'+t.id+'" onclick="taskToggleName('+t.id+')">'+escapeHTML(t.name)+'</span>'
-    +(tDueStr?'<span class="ev-time" style="color:var(--muted);min-width:auto">期限：'+tDueStr+'</span>':'')
-    +(t.done?'':'<span style="font-size:.6rem;color:'+priColor+'">'+escapeHTML(t.priority||'')+'</span>')
+    +(tDueStr?'<span class="ev-time" style="color:var(--muted);min-width:auto">'+tDueStr+'</span>':'')
     +'<span class="btn-more" style="margin-left:auto" onclick="event.stopPropagation();taskToggleMenu(event,'+t.id+')">⋮</span>'
     +'<div id="tmenu-'+t.id+'" style="display:none;position:absolute;top:24px;right:4px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:200;min-width:80px;width:0;height:0;overflow:visible">'
     +'<div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="taskEdit('+t.id+')">編集</div>'
@@ -2012,19 +2012,35 @@ function schRenderTask(){
   }
   var undone=SCH_TASKS.filter(function(t){return !t.done;});
   var done=SCH_TASKS.filter(function(t){return t.done;});
-  var PRI={'★★★':'#c94040','★★':'#F9A825','★':'#378ADD'};
-  function taskHtml(t){return buildTaskRow(t);}
+  function priOrder(p){return p==='★★★'?0:p==='★★'?1:2;}
+  function sortTasks(arr){
+    return arr.slice().sort(function(a,b){
+      if(schTaskSortMode==='priority'){
+        var pd=priOrder(a.priority)-priOrder(b.priority);
+        if(pd!==0)return pd;
+        var ad=(a.due_date||'9999')+(a.due_time||'');
+        var bd=(b.due_date||'9999')+(b.due_time||'');
+        return ad.localeCompare(bd);
+      } else {
+        var ad=(a.due_date||'9999')+(a.due_time||'');
+        var bd=(b.due_date||'9999')+(b.due_time||'');
+        var dd=ad.localeCompare(bd);
+        if(dd!==0)return dd;
+        return priOrder(a.priority)-priOrder(b.priority);
+      }
+    });
+  }
   var html='<div style="padding:6px 0">';
   if(undone.length){
     html+='<div class="day-card" style="margin-bottom:8px">';
-    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 2px;border-bottom:2px solid var(--c-task);margin-bottom:6px"><span style="font-size:.84rem;font-weight:500;color:var(--c-task)">タスク（'+undone.length+'件）</span></div>';
-    undone.forEach(function(t){html+=taskHtml(t);});
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 2px;border-bottom:2px solid var(--c-task);margin-bottom:6px"><span style="font-size:.84rem;font-weight:500;color:var(--c-task)">未完了（'+undone.length+'件）</span></div>';
+    sortTasks(undone).forEach(function(t){html+=buildTaskRow(t);});
     html+='</div>';
   }
   if(done.length){
     html+='<div class="day-card">';
     html+='<div style="margin-top:12px"></div><div style="display:flex;align-items:center;justify-content:space-between;padding:4px 2px;border-bottom:2px solid #bbb;margin-bottom:6px"><span style="font-size:.84rem;font-weight:500;color:#999">完了済み（'+done.length+'件）</span></div>';
-    done.forEach(function(t){html+=taskHtml(t);});
+    sortTasks(done).forEach(function(t){html+=buildTaskRow(t);});
     html+='</div>';
   }
   html+='</div>';
@@ -2041,7 +2057,17 @@ function schRender(){
   schUpdateHeader();
   // 1日表示時はソートボタン非表示、それ以外は表示
   var sortBtn=document.getElementById('schSortBtn');
-  if(sortBtn)sortBtn.style.display=schTab==='day'?'none':'';
+  var taskSortBtns=document.getElementById('schTaskSortBtns');
+  var dateNav=document.querySelector('.sch-hdr-nav-row');
+  if(schTab==='task'){
+    if(sortBtn)sortBtn.style.display='none';
+    if(taskSortBtns)taskSortBtns.style.display='flex';
+    if(dateNav)dateNav.style.visibility='hidden';
+  } else {
+    if(sortBtn)sortBtn.style.display=schTab==='day'?'none':'';
+    if(taskSortBtns)taskSortBtns.style.display='none';
+    if(dateNav)dateNav.style.visibility='visible';
+  }
   var c=document.getElementById('schContent');if(!c)return;
   if(schTab==='day')c.innerHTML=schRenderDay(schDate);
   else if(schTab==='three')c.innerHTML=schRenderThree(schDate);
@@ -2058,6 +2084,15 @@ var loveSortMode='auto';var loveOpenId=null;var loveDetailTab={};var loveAvatarM
 var loveEditId=null;var loveSelBg='rgba(192,72,72,.15)';var loveSelText='#c04848';var loveSelLevel=1;
 /* Schedule昇順・降順モード（asc=昇順 / desc=降順） */
 var schSortMode='asc';
+var schTaskSortMode='priority';
+function schTaskSortToggle(mode){
+  schTaskSortMode=mode;
+  document.getElementById('schTaskSortPri').style.background=mode==='priority'?'var(--accent-deep)':'';
+  document.getElementById('schTaskSortPri').style.color=mode==='priority'?'#fff':'';
+  document.getElementById('schTaskSortDate').style.background=mode==='date'?'var(--accent-deep)':'';
+  document.getElementById('schTaskSortDate').style.color=mode==='date'?'#fff':'';
+  schRenderTask();
+}
 function schSortToggle(){
   schSortMode=schSortMode==='asc'?'desc':'asc';
   document.getElementById('schSortLabel').textContent=schSortMode==='asc'?'昇順':'降順';
