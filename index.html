@@ -1423,10 +1423,10 @@ function switchView(v){
     document.getElementById('nav-'+n).classList.toggle('active',n===v);
   });
   if(v==='top')      updateTopHeader();
-  if(v==='schedule') schRender();
+  if(v==='schedule') schSwitchTab('day',document.getElementById('sch-tab-day'));
   if(v==='love')     loveRender();
-  if(v==='memo')     memoRender();
-  if(v==='mind')     mindRender();
+  if(v==='memo')     memoSwitchTab('diary');
+  if(v==='mind')     {var _el=document.querySelector('.mind-cats .mind-cat:first-child');if(_el)mindFilter('all',_el);else mindRender();}
 }
 
 /* ══ 気分 ══ */
