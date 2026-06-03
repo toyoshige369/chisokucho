@@ -1076,7 +1076,6 @@ function taskEdit(id){
   var t=SCH_TASKS.find(function(x){return x.id===id;});
   if(!t)return;
   taskEditId=id;
-  document.querySelectorAll('[id^="tmenu-"]').forEach(function(el){el.style.display='none';});
   document.getElementById('taskTitle').value=t.name;
   document.getElementById('taskDue').value=t.due_date||'';
   var dtp=(t.due_time||'').split(':');
@@ -2912,7 +2911,7 @@ function mindRenderFortune(){
 function showDeleteConfirm(msg,onConfirm){
   var trigger=event&&event.target;
   if(!trigger)return;
-  var menuEl=trigger.closest('[id^="mmenu-"],[id^="tmenu-"],[id^="dmenu-"],[id^="cmenu-"],[id^="scmenu-"]');
+  var menuEl=trigger.closest('[id^="mmenu-"],[id^="dmenu-"],[id^="cmenu-"]');
   if(!menuEl)return;
   menuEl.innerHTML='<div style="padding:8px 10px;font-size:.72rem;color:#484440;border-bottom:1px solid var(--line)">'+msg+'</div>'
     +'<div style="display:flex">'
