@@ -1278,7 +1278,7 @@ function buildTaskRow(t){
     +'<div class="t-circle'+(t.done?' done':'')+'" onclick="taskToggleDone('+t.id+')"></div>'
     +'<span class="ev-name'+(t.done?' done':'')+'" id="tname-'+t.id+'" onclick="taskToggleName('+t.id+')">'+escapeHTML(t.name)+'</span>'
     +(tDueStr?'<span class="ev-time" style="color:var(--muted);min-width:auto">'+tDueStr+'</span>':'')
-    +'<span class="btn-more" style="margin-left:auto" onclick="event.stopPropagation();taskToggleMenu(event,'+t.id+')">⋮</span>'
+    +'<span class="btn-more" onclick="event.stopPropagation();taskToggleMenu(event,'+t.id+')">⋮</span>'
     +'<div id="tmenu-'+t.id+'" style="display:none;position:absolute;top:24px;right:4px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:200;min-width:80px;width:0;height:0;overflow:visible">'
     +'<div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="taskEdit('+t.id+')">編集</div>'
     +'<div style="padding:8px 14px;font-size:.78rem;color:#c0454a;cursor:pointer" onclick="taskDelete('+t.id+')">削除</div>'
