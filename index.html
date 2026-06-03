@@ -1042,7 +1042,8 @@ function renderTopLove(){
   if(!card||!list)return;
   var more=document.getElementById('topLoveMore');
   var unread=getLoveUnread();
-  if(!unread.length){list.innerHTML='';if(more)more.style.display='none';return;}
+  if(!unread.length){card.style.display='none';list.innerHTML='';if(more)more.style.display='none';return;}
+  card.style.display='';
   if(more)more.style.display='';
   var MAX=3;var shown=unread.slice(0,MAX);var rest=unread.length-MAX;
   var html='';
