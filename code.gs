@@ -92,6 +92,7 @@ function getMood(ss) {
       score: Number(rows[i][2])
     });
   }
+  result.sort(function(a,b){return Number(b.id)-Number(a.id);});
   return result;
 }
 
@@ -121,6 +122,7 @@ function getMemos(ss) {
       mood: (moodRaw!==''&&moodRaw!==null&&moodRaw!==undefined) ? Number(moodRaw) : null
     });
   }
+  result.sort(function(a,b){return Number(b.id)-Number(a.id);});
   return result;
 }
 
@@ -181,6 +183,7 @@ function getTasks(ss) {
       completed_at: String(rows[i][9]||'')
     });
   }
+  result.sort(function(a,b){return Number(b.id)-Number(a.id);});
   return result;
 }
 
@@ -300,6 +303,7 @@ function getLove(ss) {
       memo: String(rows[i][9]||'')
     });
   }
+  result.sort(function(a,b){return Number(b.id.replace('love_',''))-Number(a.id.replace('love_',''));});
   return result;
 }
 
@@ -371,6 +375,10 @@ function getEvents(ss, startDate, endDate) {
       type: 'ev'
     });
   }
+  result.sort(function(a,b){
+    if(a.event_date!==b.event_date)return a.event_date.localeCompare(b.event_date);
+    return (a.start_time||'').localeCompare(b.start_time||'');
+  });
   return result;
 }
 
@@ -428,7 +436,7 @@ function getMind(ss) {
       states: states
     });
   }
-  result.reverse();
+  result.sort(function(a,b){return Number(b.id)-Number(a.id);});
   return result;
 }
 
@@ -509,6 +517,7 @@ function getDeed(ss, deed_date) {
       text: String(rows[i][5]||'')
     });
   }
+  result.sort(function(a,b){return Number(b.id)-Number(a.id);});
   return result;
 }
 
