@@ -999,8 +999,6 @@ function approveServiceUpdate(){
   document.getElementById('servicePopupOverlay').classList.remove('open');
   showBellDot(false);
 }
-/* モック：未確認の更新あり → 赤丸表示 */
-setTimeout(function(){showBellDot(true);},500);
 
 /* ══ Top Love 未確認通知 ══ */
 function getLoveUnread(){
@@ -1167,6 +1165,7 @@ function renderTopDeeds(){
   list.innerHTML=html;
 }
 function initApp(){
+  if(!NEWS_DATA)document.getElementById('newsBanner').style.display='none';
   renderTopLove();
   gasCall('recordLogin',{},function(data){
   });
@@ -1264,10 +1263,6 @@ function buildTaskRow(t){
     +'<span class="ev-name'+(t.done?' done':'')+'" id="tname-'+t.id+'" onclick="taskToggleName('+t.id+')">'+escapeHTML(t.name)+'</span>'
     +(tDueStr?'<span class="ev-time" style="color:var(--muted);min-width:auto">'+tDueStr+'</span>':'')
     +'<span class="btn-more" onclick="event.stopPropagation();taskToggleMenu(event,'+t.id+')">⋮</span>'
-    +'<div id="tmenu-'+t.id+'" style="display:none;position:absolute;top:24px;right:4px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:200;min-width:80px;width:0;height:0;overflow:visible">'
-    +'<div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="taskEdit('+t.id+')">編集</div>'
-    +'<div style="padding:8px 14px;font-size:.78rem;color:#c0454a;cursor:pointer" onclick="taskDelete('+t.id+')">削除</div>'
-    +'</div>'
     +'</div>';
 }
 
@@ -1302,7 +1297,7 @@ function renderTopSchedule(){
   var more='<span class="ch-more" onclick="switchView(\'schedule\');schSwitchTab(\'day\',document.getElementById(\'sch-tab-day\'))">一覧</span>';
   var html='<div class="ch-ul" style="--ul-color:var(--c-schedule)"><span class="ch-label" style="color:var(--c-schedule)">予定（'+todayEvs.length+'件）</span><div style="display:flex;gap:6px;align-items:center">'+more+'<span style="font-size:.72rem;color:var(--accent-deep);cursor:pointer;font-weight:700" onclick="schOpenModal()">＋</span></div></div>';
   /* e.nameはGASから取得するユーザーデータ → escapeHTML適用 */
-  todayEvs.forEach(function(e){html+='<div class="s-item"><div style="width:3px;align-self:stretch;background:'+(e.color||'var(--c-schedule)')+';flex-shrink:0;border-radius:0"></div><div class="s-time">'+e.time+'</div><div style="flex:1;min-width:0"><div class="s-main">'+escapeHTML(e.name)+'</div>'+(e.sub?'<div class="s-sub">'+escapeHTML(e.sub)+'</div>':'')+'</div><span class="btn-more ev-more" onclick="event.stopPropagation();schToggleMenu(event,'+e.id+')">⋮</span><div id="scmenu-'+e.id+'" style="display:none;position:absolute;top:24px;right:4px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:200;min-width:80px;width:0;height:0;overflow:visible"><div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="schEditEvent('+e.id+')">編集</div><div style="padding:8px 14px;font-size:.78rem;color:#E24B4A;cursor:pointer" onclick="schDeleteEvent('+e.id+')">削除</div></div></div>';});
+  todayEvs.forEach(function(e){html+='<div class="s-item"><div style="width:3px;align-self:stretch;background:'+(e.color||'var(--c-schedule)')+';flex-shrink:0;border-radius:0"></div><div class="s-time">'+e.time+'</div><div style="flex:1;min-width:0"><div class="s-main">'+escapeHTML(e.name)+'</div>'+(e.sub?'<div class="s-sub">'+escapeHTML(e.sub)+'</div>':'')+'</div><span class="btn-more ev-more" onclick="event.stopPropagation();schToggleMenu(event,'+e.id+')">⋮</span></div>';});
   container.innerHTML=html;
 }
 
@@ -1316,13 +1311,9 @@ var APP_CONFIG={
 };
 
 /* 緊急ニュース */
-var NEWS_DATA={
-  text:'【気象警報】富士宮市・富士市に大雨警報が発令されました。河川の増水・土砂災害に十分注意してください。',
-  source:'気象庁',
-  time:'14:30発表',
-  url:'https://www.jma.go.jp'
-};
+var NEWS_DATA=null; /* 将来：外部APIから取得予定 */
 function openNewsModal(){
+  if(!NEWS_DATA){document.getElementById('newsBanner').style.display='none';return;}
   var el=document.getElementById('newsModalContent');
   /* NEWS_DATAはモック固定値だが、将来外部取得になるためescapeHTML適用 */
   el.innerHTML='<strong>'+escapeHTML(NEWS_DATA.text)+'</strong><br><span style="font-size:.72rem;color:var(--muted)">'+escapeHTML(NEWS_DATA.source)+' · '+escapeHTML(NEWS_DATA.time)+'</span>';
@@ -1840,10 +1831,7 @@ function schRenderDay(d){
         +'<span class="ev-time">'+escapeHTML(e.time||'終日')+'</span>'
         +'<span class="ev-name">'+escapeHTML(e.name)+'</span>'
         +'<span class="btn-more ev-more" onclick="event.stopPropagation();schToggleMenu(event,'+e.id+')">⋮</span>'
-        +'<div id="scmenu-'+e.id+'" style="display:none;position:absolute;top:24px;right:4px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:200;min-width:80px;width:0;height:0;overflow:visible">'
-        +'<div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="schEditEvent('+e.id+')">編集</div>'
-        +'<div style="padding:8px 14px;font-size:.78rem;color:#E24B4A;cursor:pointer" onclick="schDeleteEvent('+e.id+')">削除</div>'
-        +'</div></div>';
+        +'</div>';
     });
   }
   html+='</div></div>';return html;
@@ -1867,10 +1855,7 @@ function schRenderThree(d){
           +'<span class="ev-time">'+escapeHTML(e.time||'終日')+'</span>'
           +'<span class="ev-name">'+escapeHTML(e.name)+'</span>'
           +'<span class="btn-more ev-more" onclick="event.stopPropagation();schToggleMenu(event,'+e.id+')">⋮</span>'
-          +'<div id="scmenu-'+e.id+'" style="display:none;position:absolute;top:24px;right:4px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:200;min-width:80px;width:0;height:0;overflow:visible">'
-          +'<div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="schEditEvent('+e.id+')">編集</div>'
-          +'<div style="padding:8px 14px;font-size:.78rem;color:#E24B4A;cursor:pointer" onclick="schDeleteEvent('+e.id+')">削除</div>'
-          +'</div></div>';
+          +'</div>';
       });
     }
     html+='</div></div>';
@@ -1920,10 +1905,7 @@ function schRenderWeek(d){
         +'<span class="ev-time">'+escapeHTML(e.time||'終日')+'</span>'
         +'<span class="ev-name">'+escapeHTML(e.name)+'</span>'
         +'<span class="btn-more ev-more" onclick="event.stopPropagation();schToggleMenu(event,'+e.id+')">⋮</span>'
-        +'<div id="scmenu-'+e.id+'" style="display:none;position:absolute;top:24px;right:4px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:200;min-width:80px;width:0;height:0;overflow:visible">'
-        +'<div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="schEditEvent('+e.id+')">編集</div>'
-        +'<div style="padding:8px 14px;font-size:.78rem;color:#E24B4A;cursor:pointer" onclick="schDeleteEvent('+e.id+')">削除</div>'
-        +'</div></div>';
+        +'</div>';
     });
     dayHtml+='</div>';
     if(isPast){
@@ -1978,10 +1960,7 @@ function schRenderMonth(d){
         +'<span class="ev-time">'+escapeHTML(e.time||'終日')+'</span>'
         +'<span class="ev-name">'+escapeHTML(e.name)+'</span>'
         +'<span class="btn-more ev-more" onclick="event.stopPropagation();schToggleMenu(event,'+e.id+')">⋮</span>'
-        +'<div id="scmenu-'+e.id+'" style="display:none;position:absolute;top:24px;right:4px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:200;min-width:80px;width:0;height:0;overflow:visible">'
-        +'<div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="schEditEvent('+e.id+')">編集</div>'
-        +'<div style="padding:8px 14px;font-size:.78rem;color:#E24B4A;cursor:pointer" onclick="schDeleteEvent('+e.id+')">削除</div>'
-        +'</div></div>';
+        +'</div>';
     });
     dayHtml+='</div>';
     if(isPast){
@@ -2544,7 +2523,7 @@ function memoToggleMenu(e,id){
   var el=document.getElementById('mmenu-'+id);
   if(el)el.style.display=el.style.display==='none'?'block':'none';
 }
-document.addEventListener('click',function(){document.querySelectorAll('[id^="mmenu-"],[id^="tmenu-"],[id^="dmenu-"],[id^="cmenu-"]').forEach(function(el){el.style.display='none';});var fm=document.getElementById('floatMenu');if(fm){fm.style.display='none';fm.dataset.openId='';}});
+document.addEventListener('click',function(){document.querySelectorAll('[id^="mmenu-"],[id^="dmenu-"],[id^="cmenu-"]').forEach(function(el){el.style.display='none';});var fm=document.getElementById('floatMenu');if(fm){fm.style.display='none';fm.dataset.openId='';}});
 function memoDelete(id){
   var backup=MEMOS.slice();
   deleteWithUndo('メモ',
