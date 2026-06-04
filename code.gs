@@ -26,7 +26,7 @@ function doGet(e) {
     } else if (action === 'getMemos') {
       result = getMemos(ss);
     } else if (action === 'saveMemo') {
-      result = saveMemo(ss, e.parameter.id, e.parameter.memo_date || e.parameter.date, e.parameter.time, e.parameter.cat, e.parameter.text, e.parameter.excludeDiary);
+      result = saveMemo(ss, e.parameter.id, e.parameter.memo_date || e.parameter.date, e.parameter.time, e.parameter.cat, e.parameter.text, e.parameter.excludeDiary, e.parameter.mood);
     } else if (action === 'getTasks') {
       result = getTasks(ss);
     } else if (action === 'saveTask') {
