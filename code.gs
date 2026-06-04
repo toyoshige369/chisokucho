@@ -268,7 +268,9 @@ function saveDiary(ss, date, prompt, answer, good1, good2, good3) {
   var sheet = ss.getSheetByName('diary');
   var rows = sheet.getDataRange().getValues();
   for (var i = 1; i < rows.length; i++) {
-    if (String(rows[i][3]) === date) {
+    var rawDate = rows[i][3];
+    var dateStr = rawDate instanceof Date ? Utilities.formatDate(rawDate,'Asia/Tokyo','yyyy-MM-dd') : String(rawDate||'');
+    if (dateStr === date) {
       sheet.getRange(i+1, 3).setValue(now());
       sheet.getRange(i+1, 5).setValue(prompt||'');
       sheet.getRange(i+1, 6).setValue(answer||'');
@@ -593,4 +595,38 @@ function setWeeklyBackupTrigger() {
     .atHour(0)
     .create();
   return {ok: true};
+}
+
+function cleanDuplicateDiary() {
+  var ss = SpreadsheetApp.openById(SS_ID);
+  var sheet = ss.getSheetByName('diary');
+  var rows = sheet.getDataRange().getValues();
+  // diary_dateごとに最新（good列が最も埋まっている）行番号を記録
+  var best = {}; // diary_date -> {rowIndex, goodCount, id}
+  for (var i = 1; i < rows.length; i++) {
+    if (!rows[i][0]) continue;
+    var rawDate = rows[i][3];
+    var dateStr = rawDate instanceof Date ? Utilities.formatDate(rawDate,'Asia/Tokyo','yyyy-MM-dd') : String(rawDate||'');
+    var goodCount = (rows[i][6]?1:0) + (rows[i][7]?1:0) + (rows[i][8]?1:0);
+    var id = Number(rows[i][0]);
+    if (!best[dateStr] || goodCount > best[dateStr].goodCount || (goodCount === best[dateStr].goodCount && id > best[dateStr].id)) {
+      best[dateStr] = {rowIndex: i, goodCount: goodCount, id: id};
+    }
+  }
+  // bestでない行を後ろから削除
+  var toDelete = [];
+  for (var j = 1; j < rows.length; j++) {
+    if (!rows[j][0]) continue;
+    var rawDate2 = rows[j][3];
+    var dateStr2 = rawDate2 instanceof Date ? Utilities.formatDate(rawDate2,'Asia/Tokyo','yyyy-MM-dd') : String(rawDate2||'');
+    if (best[dateStr2].rowIndex !== j) {
+      toDelete.push(j + 1);
+    }
+  }
+  toDelete.sort(function(a,b){return b-a;});
+  toDelete.forEach(function(rowNum) {
+    sheet.deleteRow(rowNum);
+  });
+  Logger.log('deleted: ' + toDelete.length);
+  return {ok: true, deleted: toDelete.length};
 }
