@@ -1226,7 +1226,7 @@ function initApp(){
   var startStr=start.getFullYear()+'-'+String(start.getMonth()+1).padStart(2,'0')+'-'+String(start.getDate()).padStart(2,'0');
   var end=new Date(TODAY.getTime()+30*86400000);
   var endStr=end.getFullYear()+'-'+String(end.getMonth()+1).padStart(2,'0')+'-'+String(end.getDate()).padStart(2,'0');
-  gasCall('getMind',{},function(data){if(data&&Array.isArray(data))MIND_MY=data.map(function(o){return{id:o['id'],title:o['title'],sub:o['sub']||'',url:o['url']||'',cat:o['cat']||'audio',icon:o['icon']||'',taps:Number(o['taps'])||0,states:o['states']||[]};});mindRender();});
+  gasCall('getMind',{},function(data){if(data&&Array.isArray(data))MIND_MY=data.map(function(o){return{id:o['id'],title:o['title'],sub:o['sub']||'',url:o['url']||'',cat:o['cat']||'audio',icon:o['icon']||'',taps:Number(o['taps'])||0,states:o['states']||[],from_ai:o['from_ai']===true||o['from_ai']===1||String(o['from_ai'])==='1'};});mindRender();});
   gasCall('getEvents',{startDate:startStr,endDate:endStr},function(data){
     if(data&&Array.isArray(data))SCH_EVENTS=data.map(function(e){
       return{date:e.event_date||'',time:e.start_time||'',endTime:e.end_time||'',name:e.name||'',sub:e.sub||'',color:e.color||'',person:e.person||'',allDay:e.all_day===true||e.all_day==='TRUE',type:'ev',id:e.id};
