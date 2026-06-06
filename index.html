@@ -768,7 +768,7 @@ html,body{
     <span id="schTodayBtn" class="badge-return" onclick="schGoToday()" style="display:none">今日へ</span>
     <div class="hdr-arr" onclick="schNext()">›</div>
   </div>
-  <div class="tabs" style="grid-template-columns:repeat(5,1fr)">
+  <div class="tabs">
     <div class="tab active" id="sch-tab-day" onclick="schSwitchTab('day',this)">1日</div>
     <div class="tab" id="sch-tab-three" onclick="schSwitchTab('three',this)">3日</div>
     <div class="tab" id="sch-tab-week" onclick="schSwitchTab('week',this)">週</div>
@@ -827,11 +827,11 @@ html,body{
       <div class="hdr-add" onclick="memoOpenModal()">＋</div>
     </div>
   </div>
-  <div class="tabs" style="grid-template-columns:repeat(4,1fr)">
+  <div class="tabs">
     <div class="tab" id="memo-tab-memo" onclick="memoSwitchTab('memo')">メモ</div>
     <div class="tab active" id="memo-tab-diary" onclick="memoSwitchTab('diary')">日記</div>
+    <div class="tab" id="memo-tab-mood" onclick="memoSwitchTab('mood')">気分</div>
     <div class="tab" id="memo-tab-deeds" onclick="memoSwitchTab('deeds')">この日の記憶</div>
-    <!-- マップタブ：GAS実装後に有効化 -->
   </div>
   <div class="memo-scroll" id="memoContent"></div>
 </div>
@@ -2433,6 +2433,8 @@ function memoSwitchTab(tab){
   memoRender();
   /* deedsタブ切替時はGASからデータ取得 */
   if(tab==='deeds'){var _md=memoDiaryDate.slice(5).replace('-','/').replace(/^0/,'').replace('/0','/');deedLoadForDate(_md);}
+  /* moodタブ切替時はグラフ描画 */
+  if(tab==='mood'){moodGraphOffset=0;moodRenderGraph();}
 }function memoRenderPresets(){
   var sp=document.getElementById('shopPresets');
   if(sp){
@@ -2650,56 +2652,208 @@ function memoRenderMemo(){
   });
   return html;
 }
+var moodGraphPeriod='month';
+var moodGraphOffset=0;
 function moodRenderGraph(){
-  var W=300,H=80,padL=4,padR=4,padT=8,padB=16;
-  var now=new Date();
-  /* 過去30日の日付リストを生成 */
-  var days=[];
-  for(var i=29;i>=0;i--){var d=new Date(now);d.setDate(d.getDate()-i);days.push(d.toISOString().slice(0,10));}
-  /* 日付ごとに平均スコアを集計 */
-  var dayMap={};
-  MOOD.forEach(function(m){
-    var dt=m.recorded_at?m.recorded_at.slice(0,10):'';
-    if(!dt)return;
-    if(!dayMap[dt])dayMap[dt]={sum:0,n:0};
-    dayMap[dt].sum+=Number(m.score)||0;
-    dayMap[dt].n++;
+  var area=document.getElementById('mood-graph-area');
+  if(!area)return;
+  var W=300,H=90,padL=28,padR=12,padT=10,padB=18;
+  var now=new Date();now.setHours(23,59,59,999);
+  /* ── 期間ごとのデータ収集・ラベル生成 ── */
+  var pts=[],periodLabel='',xLabels='';
+  var p=moodGraphPeriod,off=moodGraphOffset;
+  /* MoodデータをDateオブジェクトに変換してキャッシュ */
+  var moodDates=MOOD.map(function(m){return{d:new Date(m.recorded_at),score:Number(m.score)||0};});
+  /* ヘルパー：date→"YYYY-MM-DD" */
+  function toYMD(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  /* ヘルパー：日付グループの平均を返す */
+  function avgOf(arr){if(!arr.length)return null;return arr.reduce(function(s,v){return s+v;},0)/arr.length;}
+  if(p==='1day'){
+    var base=new Date(now);base.setDate(base.getDate()+off);base.setHours(0,0,0,0);
+    var baseEnd=new Date(base);baseEnd.setHours(23,59,59,999);
+    var y=base.getFullYear(),mo=base.getMonth()+1,da=base.getDate();
+    periodLabel=y+'年'+mo+'月'+da+'日';
+    var dayPts=moodDates.filter(function(m){return m.d>=base&&m.d<=baseEnd;});
+    dayPts.sort(function(a,b){return a.d-b.d;});
+    pts=dayPts.map(function(m,i){
+      var h=m.d.getHours()+m.d.getMinutes()/60;
+      var x=padL+(h/24)*(W-padL-padR);
+      var y2=padT+(1-m.score/100)*(H-padT-padB);
+      return{x:x,y:y2,score:m.score,dt:toYMD(m.d),seq:i};
+    });
+    /* X軸：0/6/12/18/24 */
+    [0,6,12,18,24].forEach(function(h){
+      var x=padL+(h/24)*(W-padL-padR);
+      xLabels+='<text x="'+x.toFixed(1)+'" y="'+(H-3)+'" font-size="6" fill="var(--muted)" text-anchor="middle">'+h+'h</text>';
+    });
+  } else if(p==='week'){
+    var baseW=new Date(now);baseW.setDate(baseW.getDate()+off*7);
+    var endW=new Date(baseW);endW.setHours(23,59,59,999);
+    var startW=new Date(baseW);startW.setDate(startW.getDate()-6);startW.setHours(0,0,0,0);
+    periodLabel=(startW.getMonth()+1)+'月'+startW.getDate()+'日〜'+(endW.getMonth()+1)+'月'+endW.getDate()+'日';
+    var days7=[];for(var i=0;i<7;i++){var d=new Date(startW);d.setDate(d.getDate()+i);days7.push(toYMD(d));}
+    var map7={};moodDates.forEach(function(m){if(m.d>=startW&&m.d<=endW){var k=toYMD(m.d);if(!map7[k])map7[k]=[];map7[k].push(m.score);}});
+    pts=days7.map(function(dt,i){
+      var avg=avgOf(map7[dt]||[]);
+      if(avg===null)return null;
+      var x=padL+(i/6)*(W-padL-padR);
+      var y2=padT+(1-avg/100)*(H-padT-padB);
+      return{x:x,y:y2,score:avg,dt:dt,seq:i};
+    }).filter(Boolean);
+    days7.forEach(function(dt,i){
+      if(i%2!==0)return;
+      var d=new Date(dt);
+      var x=padL+(i/6)*(W-padL-padR);
+      xLabels+='<text x="'+x.toFixed(1)+'" y="'+(H-3)+'" font-size="6" fill="var(--muted)" text-anchor="middle">'+(d.getMonth()+1)+'/'+(d.getDate())+'</text>';
+    });
+  } else if(p==='month'){
+    var baseM=new Date(now.getFullYear(),now.getMonth()+1+off,0);/* 月末 */
+    var endM=new Date(baseM);endM.setHours(23,59,59,999);
+    var startM=new Date(baseM.getFullYear(),baseM.getMonth(),1);
+    periodLabel=startM.getFullYear()+'年'+(startM.getMonth()+1)+'月';
+    var days30=[];var cur=new Date(startM);
+    while(cur<=endM){days30.push(toYMD(cur));cur.setDate(cur.getDate()+1);}
+    var nDays=days30.length;
+    var map30={};moodDates.forEach(function(m){if(m.d>=startM&&m.d<=endM){var k=toYMD(m.d);if(!map30[k])map30[k]=[];map30[k].push(m.score);}});
+    pts=days30.map(function(dt,i){
+      var avg=avgOf(map30[dt]||[]);
+      if(avg===null)return null;
+      var x=padL+(i/(nDays-1||1))*(W-padL-padR);
+      var y2=padT+(1-avg/100)*(H-padT-padB);
+      return{x:x,y:y2,score:avg,dt:dt,seq:i};
+    }).filter(Boolean);
+    /* X軸：1/8/15/22/末 */
+    [0,7,14,21,nDays-1].forEach(function(i){
+      var d=new Date(days30[i]);
+      var x=padL+(i/(nDays-1||1))*(W-padL-padR);
+      xLabels+='<text x="'+x.toFixed(1)+'" y="'+(H-3)+'" font-size="6" fill="var(--muted)" text-anchor="middle">'+(d.getDate())+'日</text>';
+    });
+  } else if(p==='3month'){
+    var base3=new Date(now.getFullYear(),now.getMonth()+1+off*3,0);
+    var end3=new Date(base3);end3.setHours(23,59,59,999);
+    var start3=new Date(base3.getFullYear(),base3.getMonth()-2,1);
+    periodLabel=(start3.getFullYear())+'年'+(start3.getMonth()+1)+'月〜'+(end3.getMonth()+1)+'月';
+    /* 週ごとに集計 */
+    var weeks3=[];var ws=new Date(start3);var wi=0;
+    while(ws<=end3){
+      var we=new Date(ws);we.setDate(we.getDate()+6);if(we>end3)we=new Date(end3);
+      weeks3.push({s:new Date(ws),e:new Date(we),i:wi++});
+      ws.setDate(ws.getDate()+7);
+    }
+    var nW3=weeks3.length;
+    pts=weeks3.map(function(wk){
+      var scores=moodDates.filter(function(m){return m.d>=wk.s&&m.d<=wk.e;}).map(function(m){return m.score;});
+      var avg=avgOf(scores);
+      if(avg===null)return null;
+      var x=padL+(wk.i/(nW3-1||1))*(W-padL-padR);
+      var y2=padT+(1-avg/100)*(H-padT-padB);
+      return{x:x,y:y2,score:avg,dt:toYMD(wk.s),seq:wk.i};
+    }).filter(Boolean);
+    /* X軸：月ごと */
+    [0,1,2].forEach(function(mo){
+      var d=new Date(start3.getFullYear(),start3.getMonth()+mo,1);
+      var approxI=Math.round(mo*(nW3-1)/2);
+      var x=padL+(approxI/(nW3-1||1))*(W-padL-padR);
+      xLabels+='<text x="'+x.toFixed(1)+'" y="'+(H-3)+'" font-size="6" fill="var(--muted)" text-anchor="middle">'+(d.getMonth()+1)+'月</text>';
+    });
+  } else if(p==='year'){
+    var baseY=new Date(now.getFullYear()+off,11,31);
+    var endY=new Date(baseY);endY.setHours(23,59,59,999);
+    var startY=new Date(baseY.getFullYear(),0,1);
+    periodLabel=startY.getFullYear()+'年';
+    /* 月ごとに集計 */
+    var months12=[];
+    for(var mi=0;mi<12;mi++){
+      var ms=new Date(startY.getFullYear(),mi,1);
+      var me=new Date(startY.getFullYear(),mi+1,0);me.setHours(23,59,59,999);
+      months12.push({s:ms,e:me,i:mi});
+    }
+    pts=months12.map(function(mk){
+      var scores=moodDates.filter(function(m){return m.d>=mk.s&&m.d<=mk.e;}).map(function(m){return m.score;});
+      var avg=avgOf(scores);
+      if(avg===null)return null;
+      var x=padL+(mk.i/11)*(W-padL-padR);
+      var y2=padT+(1-avg/100)*(H-padT-padB);
+      return{x:x,y:y2,score:avg,dt:toYMD(mk.s),seq:mk.i};
+    }).filter(Boolean);
+    [0,3,6,9,11].forEach(function(mi){
+      var x=padL+(mi/11)*(W-padL-padR);
+      xLabels+='<text x="'+x.toFixed(1)+'" y="'+(H-3)+'" font-size="6" fill="var(--muted)" text-anchor="middle">'+(mi+1)+'月</text>';
+    });
+  }
+  /* ── SVG描画 ── */
+  /* グリッド線 */
+  var grids='';
+  [0,50,100].forEach(function(v){
+    var y2=(padT+(1-v/100)*(H-padT-padB)).toFixed(1);
+    grids+='<line x1="'+padL+'" y1="'+y2+'" x2="'+(W-padR)+'" y2="'+y2+'" stroke="var(--line)" stroke-width="0.5"/>';
+    grids+='<text x="'+(padL-2)+'" y="'+(parseFloat(y2)+2)+'" font-size="5.5" fill="var(--muted)" text-anchor="end">'+v+'</text>';
   });
-  /* 有効な点だけ座標化 */
-  var pts=[];
-  days.forEach(function(dt,i){
-    if(!dayMap[dt])return;
-    var score=dayMap[dt].sum/dayMap[dt].n;
-    var x=padL+(i/29)*(W-padL-padR);
-    var y=padT+(1-score/100)*(H-padT-padB);
-    pts.push({x:x,y:y,dt:dt,i:i});
-  });
-  if(pts.length===0)return '<div id="mood-graph-wrap" style="margin:0 0 12px;padding:6px 8px;background:var(--card);border:0.5px solid var(--line);border-radius:10px"><svg id="mood-graph" width="100%" viewBox="0 0 300 80" preserveAspectRatio="none"></svg></div>';
-  /* 線を連続区間ごとに polyline で描画 */
-  var lines='';var seg=[];
-  for(var k=0;k<pts.length;k++){
-    seg.push(pts[k].x.toFixed(1)+','+pts[k].y.toFixed(1));
-    var next=pts[k+1];
-    if(!next||next.i!==pts[k].i+1){
-      if(seg.length>1)lines+='<polyline points="'+seg.join(' ')+'" fill="none" stroke="#d3b259" stroke-width="1.8" stroke-linejoin="round"/>';
-      seg=[];
+  /* 折れ線：連続区間はsolidで、欠損区間はdashed */
+  var lines='';
+  if(pts.length>1){
+    /* solid区間 */
+    var seg=[];
+    for(var ki=0;ki<pts.length;ki++){
+      seg.push(pts[ki].x.toFixed(1)+','+pts[ki].y.toFixed(1));
+      var nextPt=pts[ki+1];
+      if(!nextPt||nextPt.seq!==pts[ki].seq+1){
+        if(seg.length>1)lines+='<polyline points="'+seg.join(' ')+'" fill="none" stroke="#d3b259" stroke-width="1.8" stroke-linejoin="round"/>';
+        /* dashed区間でnextに繋ぐ */
+        if(nextPt&&seg.length>=1){
+          var lastPt=pts[ki];
+          lines+='<line x1="'+lastPt.x.toFixed(1)+'" y1="'+lastPt.y.toFixed(1)+'" x2="'+nextPt.x.toFixed(1)+'" y2="'+nextPt.y.toFixed(1)+'" stroke="#d3b259" stroke-width="1.2" stroke-dasharray="3,3"/>';
+        }
+        seg=[];
+      }
     }
   }
   /* 点 */
-  var dots=pts.map(function(p){return'<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3" fill="#d3b259"/>';}).join('');
-  /* X軸ラベル：7日ごと */
-  var xLabels='';
-  days.forEach(function(dt,i){
-    if(i%7!==0)return;
-    var x=padL+(i/29)*(W-padL-padR);
-    var d=new Date(dt);
-    var lbl=(d.getMonth()+1)+'/'+(d.getDate());
-    xLabels+='<text x="'+x.toFixed(1)+'" y="'+(H-2)+'" font-size="7" fill="var(--muted)" text-anchor="middle">'+lbl+'</text>';
+  var dots=pts.map(function(pt){return'<circle cx="'+pt.x.toFixed(1)+'" cy="'+pt.y.toFixed(1)+'" r="2.5" fill="#d3b259"/>';}).join('');
+  /* ── 統計カード ── */
+  var scores=pts.map(function(pt){return pt.score;});
+  var avg=scores.length?Math.round(scores.reduce(function(s,v){return s+v;},0)/scores.length):null;
+  var minPt=null,maxPt=null;
+  pts.forEach(function(pt){
+    if(minPt===null||pt.score<minPt.score)minPt=pt;
+    if(maxPt===null||pt.score>maxPt.score)maxPt=pt;
   });
-  return '<div id="mood-graph-wrap" style="margin:0 0 12px;padding:6px 8px;background:var(--card);border:0.5px solid var(--line);border-radius:10px">'
-    +'<svg id="mood-graph" width="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">'
-    +lines+dots+xLabels
+  /* ── HTML組み立て ── */
+  var periodBtns=['1day','week','month','3month','year'].map(function(v){
+    var lbl={1:'1日',week:'週',month:'月','3month':'3ヶ月',year:'年'}[v]||v;
+    var active=moodGraphPeriod===v;
+    return'<span onclick="moodGraphPeriod=\''+v+'\';moodGraphOffset=0;moodRenderGraph()" style="font-size:.68rem;padding:3px 9px;border-radius:999px;cursor:pointer;border:0.5px solid var(--accent-deep);background:'+(active?'var(--accent-deep)':'transparent')+';color:'+(active?'#fff':'var(--accent-deep)')+'">'+lbl+'</span>';
+  }).join('');
+  var canPrev=true,canNext=off<0;
+  var navHtml='<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 0 4px">'
+    +'<span onclick="moodGraphOffset--;moodRenderGraph()" style="cursor:pointer;font-size:1rem;color:var(--accent-deep)">‹</span>'
+    +'<span style="font-size:.78rem;font-weight:700;color:var(--ink)">'+periodLabel+'</span>'
+    +(canNext?'<span onclick="moodGraphOffset++;moodRenderGraph()" style="cursor:pointer;font-size:1rem;color:var(--accent-deep)">›</span>':'<span style="font-size:1rem;color:var(--muted);cursor:default">›</span>')
+    +'</div>';
+  var svgHtml='<div style="background:var(--paper);border:0.5px solid var(--line);border-radius:10px;padding:6px 4px 4px;margin-bottom:10px">'
+    +'<svg width="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">'
+    +grids+lines+dots+xLabels
     +'</svg></div>';
+  var statHtml='';
+  if(avg!==null){
+    statHtml+='<div style="text-align:center;font-size:.72rem;color:var(--muted);margin-bottom:8px">平均 <strong style="color:var(--ink)">'+avg+'</strong>・'+getMoodLabel(avg)+'</div>';
+    statHtml+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+    statHtml+='<div style="background:var(--paper);border:0.5px solid var(--line);border-radius:10px;padding:8px;text-align:center">'
+      +'<div style="font-size:.6rem;color:var(--muted);margin-bottom:2px">低め</div>'
+      +'<div style="font-size:.9rem;font-weight:700;color:#c94040">'+(minPt?minPt.score:'−')+'</div>'
+      +'<div style="font-size:.6rem;color:var(--muted)">'+(minPt?minPt.dt.slice(5).replace('-','/'):'')+'</div>'
+      +'</div>';
+    statHtml+='<div style="background:var(--paper);border:0.5px solid var(--line);border-radius:10px;padding:8px;text-align:center">'
+      +'<div style="font-size:.6rem;color:var(--muted);margin-bottom:2px">高め</div>'
+      +'<div style="font-size:.9rem;font-weight:700;color:#3aaa8a">'+(maxPt?maxPt.score:'−')+'</div>'
+      +'<div style="font-size:.6rem;color:var(--muted)">'+(maxPt?maxPt.dt.slice(5).replace('-','/'):'')+'</div>'
+      +'</div>';
+    statHtml+='</div>';
+  } else {
+    statHtml='<div style="text-align:center;font-size:.78rem;color:var(--muted);padding:12px 0">この期間のデータはありません</div>';
+  }
+  area.innerHTML='<div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">'+periodBtns+'</div>'
+    +navHtml+svgHtml+statHtml;
 }
 function memoRenderDiary(){
   var isToday=memoDiaryDate===TODAY_STR;
@@ -2711,7 +2865,7 @@ function memoRenderDiary(){
   var g3=GOOD3[memoDiaryDate]||['','',''];
   var dayMemos=MEMOS.filter(function(m){return m.memo_date===memoDiaryDate&&!m.excludeDiary});
   var rdonly=!isToday;
-  var html=moodRenderGraph()+'<div class="diary-nav">'
+  var html='<div class="diary-nav">'
     +'<div class="hdr-arr" onclick="memoPrevDiary()">‹</div>'
     +'<div><div class="diary-date-label">'+dateLabel+(isToday?'<span class="diary-today-badge">今日</span>':'<span class="badge-return" onclick="memoGoToday()">今日へ</span>')+'</div></div>'
     +'<div style="display:flex;align-items:center;gap:10px;padding:6px 0 2px">'
@@ -2816,6 +2970,7 @@ function memoRender(){
   var c=document.getElementById('memoContent');if(!c)return;
   if(memoTab==='memo')c.innerHTML=memoRenderMemo();
   else if(memoTab==='diary')c.innerHTML=memoRenderDiary();
+  else if(memoTab==='mood'){c.innerHTML='<div id="mood-graph-area" style="padding:12px 10px"></div>';}
   else if(memoTab==='deeds')c.innerHTML=memoRenderDeeds();
   else c.innerHTML=memoRenderMap();
 }
