@@ -1,0 +1,21 @@
+{
+  "name": "知足帳",
+  "short_name": "知足帳",
+  "description": "吾唯足知 - 生活に戻るためのアプリ",
+  "start_url": "/chisokucho/",
+  "display": "standalone",
+  "background_color": "#f5f5f5",
+  "theme_color": "#d3b259",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
