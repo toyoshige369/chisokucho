@@ -58,7 +58,7 @@ html,body{
 .mood-badge{background:rgba(211,178,89,.12);border:1px solid rgba(211,178,89,.3);border-radius:999px;padding:4px 10px;font-size:.75rem;color:var(--mood-color);font-weight:700;white-space:nowrap;cursor:pointer;flex-shrink:0;user-select:none}
 
 /* ── ボトムナビ ── */
-.bottom{background:var(--paper);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 2px 8px}
+.bottom{background:var(--paper);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);justify-items:center;padding:6px 2px 8px}
 .nav{text-align:center;color:var(--muted);font-size:.65rem;padding:6px 2px 8px;cursor:pointer;position:relative}
 .nav.active{color:var(--accent-deep);font-weight:700}
 .nav.active::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:18px;height:2px;background:var(--accent);border-radius:2px}
@@ -68,7 +68,7 @@ html,body{
 .view.active{display:flex}
 
 /* ── 共通タブ ── */
-.tabs{background:var(--paper);border-bottom:1px solid var(--line);display:grid;padding:0 8px}
+.tabs{background:var(--paper);border-bottom:1px solid var(--line);display:grid;justify-content:center;padding:0 8px}
 .tab{text-align:center;font-size:.72rem;color:var(--muted);padding:7px 4px 8px;cursor:pointer;position:relative}
 .tab.active{color:var(--accent-deep);font-weight:700}
 .tab.active::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:20px;height:2px;background:var(--accent);border-radius:2px}
@@ -272,7 +272,7 @@ html,body{
 .preview-actions{display:flex;gap:4px}
 .love-detail{display:none;border-top:1px solid var(--line);background:#fafafa}
 .love-detail.open{display:block}
-.detail-tabs{display:flex;border-bottom:1px solid var(--line);padding:0 12px;background:var(--paper)}
+.detail-tabs{display:flex;justify-content:center;border-bottom:1px solid var(--line);padding:0 12px;background:var(--paper)}
 .detail-tab{font-size:.68rem;color:var(--muted);padding:6px 8px 7px;cursor:pointer;position:relative}
 .detail-tab.active{color:var(--c-love);font-weight:700}
 .detail-tab.active::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:16px;height:2px;background:var(--c-love);border-radius:2px}
