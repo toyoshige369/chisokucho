@@ -2816,7 +2816,7 @@ function moodRenderGraph(){
   var dots=pts.map(function(pt){return'<circle cx="'+pt.x.toFixed(1)+'" cy="'+pt.y.toFixed(1)+'" r="2.5" fill="#d3b259"/>';}).join('');
   /* ── 統計カード ── */
   var scores=pts.map(function(pt){return pt.score;});
-  var avg=scores.length?Math.round(scores.reduce(function(s,v){return s+v;},0)/scores.length):null;
+  var avg=scores.length?Math.floor(scores.reduce(function(s,v){return s+v;},0)/scores.length):null;
   var minPt=null,maxPt=null;
   pts.forEach(function(pt){
     if(minPt===null||pt.score<minPt.score)minPt=pt;
