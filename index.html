@@ -2844,12 +2844,12 @@ function moodRenderGraph(){
     statHtml+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
     statHtml+='<div style="background:var(--paper);border:0.5px solid var(--line);border-radius:10px;padding:8px;text-align:center">'
       +'<div style="font-size:.6rem;color:var(--muted);margin-bottom:2px">低め</div>'
-      +'<div style="font-size:.9rem;font-weight:700;color:#c94040">'+(minPt?minPt.score:'−')+'</div>'
+      +'<div style="font-size:.9rem;font-weight:700;color:#c94040">'+(minPt?Math.floor(minPt.score):'−')+'</div>'
       +'<div style="font-size:.6rem;color:var(--muted)">'+(minPt?minPt.dt.slice(5).replace('-','/'):'')+'</div>'
       +'</div>';
     statHtml+='<div style="background:var(--paper);border:0.5px solid var(--line);border-radius:10px;padding:8px;text-align:center">'
       +'<div style="font-size:.6rem;color:var(--muted);margin-bottom:2px">高め</div>'
-      +'<div style="font-size:.9rem;font-weight:700;color:#3aaa8a">'+(maxPt?maxPt.score:'−')+'</div>'
+      +'<div style="font-size:.9rem;font-weight:700;color:#3aaa8a">'+(maxPt?Math.floor(maxPt.score):'−')+'</div>'
       +'<div style="font-size:.6rem;color:var(--muted)">'+(maxPt?maxPt.dt.slice(5).replace('-','/'):'')+'</div>'
       +'</div>';
     statHtml+='</div>';
