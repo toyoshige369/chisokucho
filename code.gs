@@ -22,7 +22,7 @@ function doGet(e) {
     if (action === 'getMood') {
       result = getMood(ss);
     } else if (action === 'saveMood') {
-      result = saveMood(ss, e.parameter.date, e.parameter.time, e.parameter.score);
+      result = saveMood(ss, e.parameter.score);
     } else if (action === 'getMemos') {
       result = getMemos(ss);
     } else if (action === 'saveMemo') {
@@ -35,8 +35,6 @@ function doGet(e) {
       result = updateTask(ss, e.parameter.id, e.parameter.name, e.parameter.priority, e.parameter.due_date, e.parameter.due_time, e.parameter.done);
     } else if (action === 'deleteTask') {
       result = deleteTask(ss, e.parameter.id);
-    } else if (action === 'setupDueTimeColumn') {
-      result = setupDueTimeColumn(ss);
     } else if (action === 'getDiary') {
       result = getDiary(ss, e.parameter.date);
     } else if (action === 'saveDiary') {
@@ -56,9 +54,11 @@ function doGet(e) {
     } else if (action === 'getMind') {
       result = getMind(ss);
     } else if (action === 'saveMind') {
-      result = saveMind(ss, e.parameter.id, e.parameter.title, e.parameter.sub, e.parameter.url, e.parameter.cat, e.parameter.icon, e.parameter.taps, e.parameter.states);
+      result = saveMind(ss, e.parameter.id, e.parameter.title, e.parameter.sub, e.parameter.url, e.parameter.cat, e.parameter.icon, e.parameter.taps, e.parameter.states, e.parameter.from_ai);
     } else if (action === 'fetchYouTubeInfo') {
       result = fetchYouTubeInfo(e.parameter.url);
+    } else if (action === 'deleteMemo') {
+      result = deleteMemo(ss, e.parameter.id);
     } else if (action === 'deleteMind') {
       result = deleteMind(ss, e.parameter.id);
     } else if (action === 'getDeed') {
@@ -96,7 +96,7 @@ function getMood(ss) {
   return result;
 }
 
-function saveMood(ss, date, time, score) {
+function saveMood(ss, score) {
   var sheet = ss.getSheetByName('mood');
   sheet.insertRowBefore(2);
   sheet.getRange(2,1,1,3).setValues([[Date.now(), now(), Number(score)]]);
@@ -126,6 +126,18 @@ function getMemos(ss) {
   return result;
 }
 
+function deleteMemo(ss, id) {
+  var sheet = ss.getSheetByName('memo');
+  var rows = sheet.getDataRange().getValues();
+  for (var i = 1; i < rows.length; i++) {
+    if (Number(rows[i][0]) === Number(id)) {
+      sheet.deleteRow(i + 1);
+      return {ok: true};
+    }
+  }
+  return {ok: false, error: 'not found'};
+}
+
 function saveMemo(ss, id, date, time, cat, text, excludeDiary, mood) {
   var sheet = ss.getSheetByName('memo');
   /* H1ヘッダーがmoodでなければ設定 */
@@ -149,17 +161,6 @@ function saveMemo(ss, id, date, time, cat, text, excludeDiary, mood) {
   }
   sheet.insertRowBefore(2);
   sheet.getRange(2,1,1,8).setValues([[Number(id), now(), now(), memoDate, cat||'', text||'', excludeDiary==='true', moodVal]]);
-  /* 既存の空欄D列をcreated_at（B列）の日付部分で埋める */
-  var allRows = sheet.getDataRange().getValues();
-  for (var j = 1; j < allRows.length; j++) {
-    if (!allRows[j][3] && allRows[j][1]) {
-      var createdAt = allRows[j][1];
-      var fallbackDate = createdAt instanceof Date
-        ? Utilities.formatDate(createdAt, 'Asia/Tokyo', 'yyyy-MM-dd')
-        : String(createdAt).slice(0, 10);
-      sheet.getRange(j+1, 4).setValue(fallbackDate);
-    }
-  }
   return {ok: true, action: 'inserted'};
 }
 
@@ -187,7 +188,7 @@ function getTasks(ss) {
   return result;
 }
 
-function saveTask(ss, id, name, priority, due_date, due_time, done) {
+function saveTask(ss, id, name, priority, due_date, due_time) {
   var sheet = ss.getSheetByName('task');
   sheet.insertRowBefore(2);
   sheet.getRange(2,1,1,10).setValues([[Number(id), now(), now(), name, priority||'★★', due_date||'', due_time||'', 'self', false, '']]);
@@ -213,19 +214,6 @@ function updateTask(ss, id, name, priority, due_date, due_time, done) {
     }
   }
   return {ok: false, error: 'not found'};
-}
-
-function setupDueTimeColumn(ss) {
-  var sheet = ss.getSheetByName('task');
-  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  /* 既存のdue_time列を削除（後ろから走査して安全に） */
-  for (var i = headers.length - 1; i >= 0; i--) {
-    if (String(headers[i]).toLowerCase() === 'due_time') sheet.deleteColumn(i + 1);
-  }
-  /* F列（due_date=6列目）の直後G列にdue_timeを挿入 */
-  sheet.insertColumnBefore(7);
-  sheet.getRange(1, 7).setValue('due_time').setFontWeight('bold');
-  return {ok: true, action: 'setupDueTimeColumn'};
 }
 
 function deleteTask(ss, id) {
@@ -285,7 +273,7 @@ function saveDiary(ss, date, prompt, answer, good1, good2, good3) {
   return {ok: true, action: 'inserted'};
 }
 
-/* ── love: id / created_at / updated_at / name / cat / color / textColor / pinned / taps / memo ── */
+/* ── love: id / created_at / updated_at / name / cat / color / textColor / pinned / love_level / memo ── */
 function getLove(ss) {
   var sheet = ss.getSheetByName('love');
   var rows = sheet.getDataRange().getValues();
@@ -301,11 +289,10 @@ function getLove(ss) {
       color: String(rows[i][5]||'rgba(192,80,72,.15)'),
       textColor: String(rows[i][6]||'#c05048'),
       pinned: rows[i][7]===true||rows[i][7]==='TRUE',
-      taps: Number(rows[i][8])||0,
+      love_level: Number(rows[i][8])||1,
       memo: String(rows[i][9]||'')
     });
   }
-  result.sort(function(a,b){return Number(b.id.replace('love_',''))-Number(a.id.replace('love_',''));});
   return result;
 }
 
@@ -435,14 +422,15 @@ function getMind(ss) {
       cat: String(rows[i][6]||'audio'),
       icon: String(rows[i][7]||''),
       taps: Number(rows[i][8])||0,
-      states: states
+      states: states,
+      from_ai: rows[i][10] === 1 || rows[i][10] === true || String(rows[i][10]) === '1',
     });
   }
   result.sort(function(a,b){return Number(b.id)-Number(a.id);});
   return result;
 }
 
-function saveMind(ss, id, title, sub, url, cat, icon, taps, states) {
+function saveMind(ss, id, title, sub, url, cat, icon, taps, states, fromAi) {
   var sheet = ss.getSheetByName('mind');
   var rows = sheet.getDataRange().getValues();
   var statesStr = states||'';
@@ -456,11 +444,12 @@ function saveMind(ss, id, title, sub, url, cat, icon, taps, states) {
       sheet.getRange(i+1, 8).setValue(icon||'');
       sheet.getRange(i+1, 9).setValue(Number(taps)||0);
       sheet.getRange(i+1, 10).setValue(statesStr);
+      sheet.getRange(i+1, 11).setValue(fromAi ? 1 : 0); // from_ai
       return {ok: true, action: 'updated'};
     }
   }
   sheet.insertRowBefore(2);
-  sheet.getRange(2,1,1,10).setValues([[Number(id), now(), now(), title||'', sub||'', url||'', cat||'audio', icon||'', Number(taps)||0, statesStr]]);
+  sheet.getRange(2,1,1,11).setValues([[Number(id), now(), now(), title||'', sub||'', url||'', cat||'audio', icon||'', Number(taps)||0, statesStr, fromAi ? 1 : 0]]);
   return {ok: true, action: 'inserted'};
 }
 
@@ -570,7 +559,8 @@ function restoreFromBackup(filename) {
 
 function fetchYouTubeInfo(videoUrl) {
   videoUrl = videoUrl || 'https://youtu.be/ptiK8U4WlSc';
-  var apiKey = 'REDACTED_API_KEY';
+  var apiKey = PropertiesService.getScriptProperties().getProperty('YOUTUBE_API_KEY');
+  if (!apiKey) return {ok: false, error: 'YOUTUBE_API_KEY not set'};
   var videoId = '';
   var match = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/);
   if (match) videoId = match[1];
@@ -595,38 +585,4 @@ function setWeeklyBackupTrigger() {
     .atHour(0)
     .create();
   return {ok: true};
-}
-
-function cleanDuplicateDiary() {
-  var ss = SpreadsheetApp.openById(SS_ID);
-  var sheet = ss.getSheetByName('diary');
-  var rows = sheet.getDataRange().getValues();
-  // diary_dateごとに最新（good列が最も埋まっている）行番号を記録
-  var best = {}; // diary_date -> {rowIndex, goodCount, id}
-  for (var i = 1; i < rows.length; i++) {
-    if (!rows[i][0]) continue;
-    var rawDate = rows[i][3];
-    var dateStr = rawDate instanceof Date ? Utilities.formatDate(rawDate,'Asia/Tokyo','yyyy-MM-dd') : String(rawDate||'');
-    var goodCount = (rows[i][6]?1:0) + (rows[i][7]?1:0) + (rows[i][8]?1:0);
-    var id = Number(rows[i][0]);
-    if (!best[dateStr] || goodCount > best[dateStr].goodCount || (goodCount === best[dateStr].goodCount && id > best[dateStr].id)) {
-      best[dateStr] = {rowIndex: i, goodCount: goodCount, id: id};
-    }
-  }
-  // bestでない行を後ろから削除
-  var toDelete = [];
-  for (var j = 1; j < rows.length; j++) {
-    if (!rows[j][0]) continue;
-    var rawDate2 = rows[j][3];
-    var dateStr2 = rawDate2 instanceof Date ? Utilities.formatDate(rawDate2,'Asia/Tokyo','yyyy-MM-dd') : String(rawDate2||'');
-    if (best[dateStr2].rowIndex !== j) {
-      toDelete.push(j + 1);
-    }
-  }
-  toDelete.sort(function(a,b){return b-a;});
-  toDelete.forEach(function(rowNum) {
-    sheet.deleteRow(rowNum);
-  });
-  Logger.log('deleted: ' + toDelete.length);
-  return {ok: true, deleted: toDelete.length};
 }

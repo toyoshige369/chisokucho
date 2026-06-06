@@ -16,9 +16,8 @@
   --mood-color:#b7891f;--sh:0 2px 8px rgba(0,0,0,.05);
   --c-schedule:#1976d2;--c-task:#b09030;--c-memory:#4a9870;--c-love:#f06292;
   --c-video:#c04848;--c-music:#b09030;--c-audio:#c06090;--c-image:#4878c8;--c-fortune:#8050c0;--c-healing:#4a9870;
-  --c-idea:#c0a000;--c-shop:#e07030;--c-check:#7a9860;--c-memo-cat:#d3a050;--c-forget:#8050c0;
-  --c-note:#9a8470;--c-notice:#30a060;--c-search:#2080d0;--c-work:#6080a0;--c-person:#d04080;--c-taste:#d05030;
-  --c-holiday:#d3a050;
+  --c-idea:#b09000;--c-shop:#d06828;
+  --c-note:#8a7a6a;--c-notice:#3a9858;--c-search:#2878c8;--c-work:#5878a0;--c-person:#c83878;--c-taste:#c05030;--c-place:#3a8898;
   --c-memo:#5a8a70;--c-mind:#6858a8;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -40,7 +39,7 @@ html,body{
 }
 
 /* ── バッジ・ボタン共通：文字を中央揃え ── */
-[class*="badge"],[class*="btn"],[class*="cat"],[class*="tap"],[class*="chip"],.hdr-today,.hdr-sort,.hdr-ai,.love-count,.pin-badge,.ai-badge,.solstice-close,.tag-btn{display:inline-flex;align-items:center;line-height:1;}
+[class*="badge"],[class*="btn"],[class*="cat"],[class*="tap"],[class*="chip"],.hdr-today,.hdr-sort,.love-count,.pin-badge,.ai-badge,.solstice-close,.tag-btn{display:inline-flex;align-items:center;line-height:1;}
 
 /* ── 共通ヘッダー ── */
 .header{background:var(--paper);border-bottom:1px solid var(--line);padding:7px 11px;display:flex;align-items:center;justify-content:space-between;gap:6px}
@@ -159,9 +158,6 @@ html,body{
 .fortune-footer{display:flex;justify-content:space-between;align-items:center}
 .fortune-basis{font-size:.68rem;color:#9a8470}
 .fortune-link{font-size:.68rem;color:var(--accent-deep);font-weight:700;text-decoration:none}
-.card.schedule{}
-.card.task{}
-.card.memory{}
 .card.top-love{}
 .s-item{display:flex;align-items:stretch;gap:6px;padding:5px 0}
 .s-item+.s-item{border-top:1px solid var(--line)}
@@ -296,10 +292,8 @@ html,body{
 .memo-area-love{padding:8px 12px}
 .memo-input-love{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:.82rem;font-family:inherit;color:var(--ink);background:var(--paper);resize:none;outline:none}
 .memo-hint{font-size:.65rem;color:var(--muted);margin-top:4px}
-.toast-msg{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(10px);background:#484440;color:#fff;font-size:.78rem;padding:7px 18px;border-radius:20px;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;z-index:9999;white-space:nowrap;}
-.toast-msg.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
 .detail-actions{padding:8px 12px;border-top:1px solid var(--line);display:flex;gap:6px;background:var(--paper)}
-.act-btn{flex:1;border:1px solid var(--line);border-radius:8px;padding:6px;font-size:.7rem;color:#555;background:#f5f5f5;cursor:pointer;text-align:center}
+.act-btn{flex:1;border:1px solid var(--line);border-radius:8px;padding:6px;font-size:.7rem;color:var(--text);background:var(--paper);cursor:pointer;text-align:center}
 .act-btn.danger{color:#c94040;border-color:rgba(217,64,64,.2);background:rgba(217,64,64,.04)}
 .avatar-wrap{position:relative;cursor:pointer;flex-shrink:0}
 .avatar-wrap:hover .avatar-edit{opacity:1}
@@ -315,8 +309,15 @@ html,body{
 .mc-head{display:flex;align-items:center;gap:6px;margin-bottom:4px}
 .mc-date{font-size:.65rem;color:var(--muted)}
 .mc-cat{font-size:.62rem;border-radius:999px;padding:1px 6px;font-weight:700}
-.cat-idea{background:rgba(106,159,212,.12);color:#2a5a8a}
-.cat-shop{background:rgba(192,120,144,.12);color:#804060}
+.cat-note{background:rgba(138,122,106,.12);color:#5a4a3a}
+.cat-shop{background:rgba(208,104,40,.12);color:#904820}
+.cat-notice{background:rgba(58,152,88,.12);color:#206840}
+.cat-idea{background:rgba(176,144,0,.12);color:#786000}
+.cat-search{background:rgba(40,120,200,.12);color:#185898}
+.cat-work{background:rgba(88,120,160,.12);color:#384870}
+.cat-person{background:rgba(200,56,120,.12);color:#882858}
+.cat-taste{background:rgba(192,80,48,.12);color:#803020}
+.cat-place{background:rgba(58,136,152,.12);color:#205868}
 .cat-check{background:rgba(120,152,96,.12);color:#3a5a20}
 .cat-memo-c{background:rgba(211,160,80,.12);color:#7a4a00}
 .cat-forget{background:rgba(152,120,168,.12);color:#503060}
@@ -398,25 +399,6 @@ html,body{
 .more-toggle.open .arr{transform:rotate(180deg)}
 .more-list{display:flex;flex-direction:column;gap:6px;max-height:0;overflow:hidden;transition:max-height .35s ease}
 .more-list.open{max-height:600px;overflow-y:auto}
-.hdr-ai{font-size:.68rem;color:var(--accent-deep);border:1px solid rgba(211,178,89,.3);border-radius:999px;padding:3px 8px;cursor:pointer}
-.fortune-card{background:var(--paper);border:1px solid rgba(152,120,168,.2);border-left:3px solid var(--c-fortune);border-radius:0 12px 12px 0;padding:10px 12px;box-shadow:var(--sh)}
-.fortune-card-title{font-size:.88rem;font-weight:700;color:#503060;margin-bottom:6px;font-family:"BIZ UDPGothic",sans-serif}
-.fortune-sections{display:flex;flex-direction:column;gap:5px}
-.fortune-section{background:#f8f4fd;border:1px solid rgba(152,120,168,.12);border-radius:8px;padding:7px 9px;cursor:pointer}
-.fortune-section-head{display:flex;justify-content:space-between;align-items:center}
-.fortune-section-title{font-size:.78rem;font-weight:700;color:#503060}
-.fortune-section-sub{font-size:.65rem;color:#9878a8}
-.fortune-section-body{font-size:.72rem;color:#6a5080;margin-top:4px;line-height:1.5;display:none}
-.fortune-section.open .fortune-section-body{display:block}
-.fortune-arr{font-size:.6rem;color:#9878a8;transition:transform .2s}
-.fortune-section.open .fortune-arr{transform:rotate(180deg)}
-.tarot-area{margin-top:6px;background:#f8f4fd;border:1px solid rgba(152,120,168,.12);border-radius:8px;padding:8px 10px}
-.tarot-label{font-size:.65rem;color:#9878a8;margin-bottom:6px;font-weight:700}
-.tarot-cards{display:flex;gap:6px;justify-content:center}
-.tarot-card{width:44px;height:66px;border-radius:6px;background:linear-gradient(135deg,#6a4090,#9878a8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;cursor:pointer;border:2px solid rgba(255,255,255,.3);transition:transform .15s}
-.tarot-card.revealed{background:var(--paper);border-color:rgba(152,120,168,.3)}
-.tarot-result{margin-top:7px;font-size:.72rem;color:#503060;text-align:center;line-height:1.5;display:none}
-.tarot-btn{width:100%;margin-top:6px;background:rgba(152,120,168,.15);border:1px solid rgba(152,120,168,.25);border-radius:8px;padding:7px;font-size:.75rem;color:#503060;font-family:inherit;cursor:pointer;font-weight:700}
 .modal-cat-mind{border-radius:999px;padding:4px 10px;font-size:.72rem;border:1px solid var(--line);background:#f5f5f5;color:var(--muted);cursor:pointer}
 .modal-cat-mind.active{background:rgba(211,178,89,.15);border-color:rgba(211,178,89,.3);color:var(--accent-deep);font-weight:700}
 
@@ -626,7 +608,6 @@ html,body{
       <div id="moodBadgeTop" onclick="openMood()" style="cursor:pointer"></div>
     </div>
     <div class="hdr-right">
-      <div id="quickMemoBtn" onclick="memoOpenModal()" title="メモを書く" style="cursor:pointer;font-size:1rem;line-height:1;padding:2px">✏️</div>
       <div id="bellBtn" onclick="openServicePopup()" style="position:relative;cursor:pointer;font-size:1rem;line-height:1;padding:2px">🔔<span id="bellDot" style="display:none;position:absolute;top:-1px;right:-1px;width:7px;height:7px;border-radius:50%;background:#c94040;border:1px solid var(--paper)"></span></div>
     </div>
   </div>
@@ -689,13 +670,25 @@ html,body{
     <div id="schSearchResult" style="max-height:320px;overflow-y:auto"></div>
   </div>
 </div>
+<div class="modal-overlay" id="memoSearchOverlay" onclick="memoSearchCloseIfBg(event)" style="align-items:flex-start;padding-top:56px">
+  <div class="modal" style="border-radius:0 0 18px 18px;box-shadow:0 4px 20px rgba(0,0,0,.1)">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="modal-input" id="memoSearchInput" placeholder="検索…" oninput="memoSearchRender()" style="margin:0;flex:1">
+      <span style="font-size:.78rem;color:var(--accent-deep);cursor:pointer" onclick="memoSearchClose()">キャンセル</span>
+    </div>
+    <div id="memoSearchResult" style="max-height:320px;overflow-y:auto"></div>
+  </div>
+</div>
 <div class="modal-overlay" id="schModalOverlay" onclick="schCloseIfBg(event)">
   <div class="modal">
     <div class="modal-title" id="schModalTitle">予定を追加</div>
     <input class="modal-input" id="schEvName" placeholder="タイトル">
     <input class="modal-input" id="schEvDate" placeholder="日付（例：2026-04-28）" readonly onclick="openCal('schModal')" style="cursor:pointer">
     <div style="display:flex;gap:8px">
-      <div style="flex:1;display:flex;gap:4px">
+      <div style="flex:1">
+        <div style="font-size:.65rem;color:var(--muted);margin-bottom:3px">開始</div>
+        <div style="display:flex;gap:4px">
         <select class="modal-input" id="schEvTimeH" style="flex:1">
           <option value="">--</option>
           <option value="00">00</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option>
@@ -715,8 +708,11 @@ html,body{
           <option value="50">50</option>
           <option value="55">55</option>
         </select>
+        </div>
       </div>
-      <div style="flex:1;display:flex;gap:4px">
+      <div style="flex:1">
+        <div style="font-size:.65rem;color:var(--muted);margin-bottom:3px">終了</div>
+        <div style="display:flex;gap:4px">
         <select class="modal-input" id="schEvEndTimeH" style="flex:1">
           <option value="">--</option>
           <option value="00">00</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option>
@@ -736,6 +732,7 @@ html,body{
           <option value="50">50</option>
           <option value="55">55</option>
         </select>
+        </div>
       </div>
     </div>
     <input class="modal-input" id="schEvSub" placeholder="メモ（任意）">
@@ -824,10 +821,10 @@ html,body{
   <div class="header memo">
     <div class="hdr-title serif">Memo</div>
     <div style="display:flex;align-items:center;gap:5px">
-      <div class="hdr-add" onclick="memoOpenModal()">＋</div>
-      <div class="hdr-search">
+      <div class="hdr-search" onclick="memoSearchOpen()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </div>
+      <div class="hdr-add" onclick="memoOpenModal()">＋</div>
     </div>
   </div>
   <div class="tabs" style="grid-template-columns:repeat(4,1fr)">
@@ -847,8 +844,6 @@ html,body{
       <input class="modal-input" id="mindTitle" placeholder="タイトル">
       <input class="modal-input" id="mindSub" placeholder="補足（任意）">
       <input class="modal-input" id="mindUrl" onblur="mindUrlBlur()" placeholder="YouTubeやSpotifyなどのURL（任意）">
-      <div style="font-size:.75rem;color:var(--muted);margin:6px 0 4px">アイコン</div>
-      <div id="mindIconGrid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:8px"></div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px" id="mindModalCats">
         <div class="modal-cat-mind active" data-cat="video" onclick="mindSelCat(this,'video')">動画</div>
         <div class="modal-cat-mind" data-cat="music" onclick="mindSelCat(this,'music')">曲</div>
@@ -864,6 +859,8 @@ html,body{
         <div class="modal-cat-mind" data-state="気分を上げたい" onclick="mindSelState(this)">気分を上げたい</div>
         <div class="modal-cat-mind" data-state="ありがとう" onclick="mindSelState(this)">ありがとう</div>
       </div>
+      <div style="font-size:.75rem;color:var(--muted);margin:6px 0 4px">アイコン</div>
+      <div id="mindIconGrid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:8px"></div>
       <div class="modal-actions">
         <button onclick="mindClearModal()" style="background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:8px 16px;cursor:pointer;font-size:11px;">クリア</button>
         <button class="btn soft" onclick="mindCloseModal()" style="font-size:11px;">キャンセル</button>
@@ -893,7 +890,6 @@ html,body{
     <div class="mind-cat" onclick="mindFilter('audio',this)">音声</div>
     <div class="mind-cat" onclick="mindFilter('image',this)">画像</div>
     <div class="mind-cat" onclick="mindFilter('healing',this)">癒し</div>
-    <div class="mind-cat" onclick="mindFilter('fortune',this)">占い</div>
   </div>
   <div class="mind-scroll" id="mindContent"></div>
 </div>
@@ -905,7 +901,6 @@ html,body{
   <div class="nav" id="nav-memo" onclick="switchView('memo')">Memo</div>
   <div class="nav" id="nav-love" onclick="switchView('love')">Love</div>
   <div class="nav" id="nav-mind" onclick="switchView('mind')">Mind</div>
-<div class="toast-msg" id="toastMsg"></div>
 </nav>
 
 </div><!-- /.screen -->
@@ -915,7 +910,6 @@ html,body{
    【Step1】安全性：escapeHTML
    ユーザー入力をinnerHTMLで使う前に必ずこの関数を通す
 ══════════════════════════════ */
-function showToast(msg){var t=document.getElementById('toastMsg');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2000);}
 function escapeHTML(value){
   return String(value)
     .replaceAll('&','&amp;')
@@ -934,7 +928,44 @@ var MOON_DATA=[
   {type:'new',date:'2026-05-16',label:'新月'},
   {type:'full',date:'2026-05-31',label:'満月'},
   {type:'new',date:'2026-06-15',label:'新月'},
-  {type:'full',date:'2026-06-29',label:'満月'},
+  {type:'full',date:'2026-06-30',label:'満月'},
+  {type:'new',date:'2026-07-14',label:'新月'},
+  {type:'full',date:'2026-07-29',label:'満月'},
+  {type:'new',date:'2026-08-13',label:'新月'},
+  {type:'full',date:'2026-08-28',label:'満月'},
+  {type:'new',date:'2026-09-11',label:'新月'},
+  {type:'full',date:'2026-09-27',label:'満月'},
+  {type:'new',date:'2026-10-11',label:'新月'},
+  {type:'full',date:'2026-10-26',label:'満月'},
+  {type:'new',date:'2026-11-09',label:'新月'},
+  {type:'full',date:'2026-11-24',label:'満月'},
+  {type:'new',date:'2026-12-09',label:'新月'},
+  {type:'full',date:'2026-12-24',label:'満月'},
+  {type:'new',date:'2027-01-08',label:'新月'},
+  {type:'full',date:'2027-01-22',label:'満月'},
+  {type:'new',date:'2027-02-07',label:'新月'},
+  {type:'full',date:'2027-02-21',label:'満月'},
+  {type:'new',date:'2027-03-08',label:'新月'},
+  {type:'full',date:'2027-03-22',label:'満月'},
+  {type:'new',date:'2027-04-07',label:'新月'},
+  {type:'full',date:'2027-04-21',label:'満月'},
+  {type:'new',date:'2027-05-06',label:'新月'},
+  {type:'full',date:'2027-05-20',label:'満月'},
+  {type:'new',date:'2027-06-05',label:'新月'},
+  {type:'full',date:'2027-06-19',label:'満月'},
+  {type:'new',date:'2027-07-04',label:'新月'},
+  {type:'full',date:'2027-07-19',label:'満月'},
+  {type:'new',date:'2027-08-02',label:'新月'},
+  {type:'full',date:'2027-08-17',label:'満月'},
+  {type:'new',date:'2027-09-01',label:'新月'},
+  {type:'full',date:'2027-09-16',label:'満月'},
+  {type:'new',date:'2027-09-30',label:'新月'},
+  {type:'full',date:'2027-10-15',label:'満月'},
+  {type:'new',date:'2027-10-29',label:'新月'},
+  {type:'full',date:'2027-11-14',label:'満月'},
+  {type:'new',date:'2027-11-28',label:'新月'},
+  {type:'full',date:'2027-12-14',label:'満月'},
+  {type:'new',date:'2027-12-28',label:'新月'},
 ];
 function updateMoonDisplay(){
   var now=new Date();
@@ -1132,7 +1163,7 @@ var TODAY=new Date();
 var TODAY_STR=TODAY.getFullYear()+'-'+String(TODAY.getMonth()+1).padStart(2,'0')+'-'+String(TODAY.getDate()).padStart(2,'0');
 
 var GAS_URL='https://script.google.com/macros/s/AKfycbzj0E0luEAucjMYSJaAtkiyLMuYa_e-c-Uvfqj3n8y4P1rjanUXOBO7cro8RxtZ7cQ/exec';
-var GAS_ACTIONS=['getMood','saveMood','getMemos','saveMemo','getTasks','saveTask','updateTask','deleteTask','getDiary','saveDiary','getLove','saveLove','deleteLove','getEvents','saveEvent','deleteEvent','getMind','saveMind','deleteMind','fetchYouTubeInfo','getDeed','saveDeed','deleteDeed'];
+var GAS_ACTIONS=['getMood','saveMood','getMemos','saveMemo','deleteMemo','getTasks','saveTask','updateTask','deleteTask','getDiary','saveDiary','getLove','saveLove','deleteLove','getEvents','saveEvent','deleteEvent','getMind','saveMind','deleteMind','fetchYouTubeInfo','getDeed','saveDeed','deleteDeed'];
 function gasCall(action,params,onSuccess,onError){
   if(GAS_ACTIONS.indexOf(action)<0){
     console.log('[GAS未実装] '+action+' - モックデータを使用');
@@ -1166,16 +1197,6 @@ function renderTopDeeds(){
 function initApp(){
   if(!NEWS_DATA)document.getElementById('newsBanner').style.display='none';
   renderTopLove();
-  gasCall('recordLogin',{},function(data){
-  });
-  gasCall('getSettings',{},function(data){
-    if(!data)return;
-    if(data.birthday){
-      var mm=String(TODAY.getMonth()+1).padStart(2,'0');
-      var dd=String(TODAY.getDate()).padStart(2,'0');
-      if(mm+'-'+dd===data.birthday){var el=document.getElementById('birthdayBanner');if(el)el.style.display='flex';}
-    }
-  });
   gasCall('getTasks',{},function(data){
     if(data)SCH_TASKS=data.map(function(t){
       return{id:Number(t.id),name:String(t.name),priority:String(t.priority||'★★'),due_date:String(t.due_date||''),due_time:String(t.due_time||''),done:t.done===true||t.done==='TRUE'};
@@ -1213,23 +1234,14 @@ function initApp(){
     renderTopSchedule();
     if(currentView==='schedule')schRender();
   });
-  gasCall('getMoonData',{},function(data){
-    if(data)MOON_DATA=data.map(function(m){return{type:m['種別'],date:m['日付'],label:m['ラベル']};});
-    updateMoonDisplay();
-  });
-  gasCall('getSeasonData',{},function(data){
-    if(data&&data.length){
-      SEASONS=data.map(function(s){var d=new Date(s['日付']+'T'+s['時刻']);return[d.getFullYear(),d.getMonth()+1,d.getDate(),d.getHours(),d.getMinutes()];});
-      SNAMES=data.map(function(s){return s['種別'];});
-    }
-  });
   gasCall('getLove',{},function(data){
     if(data&&data.length){
-      LOVE_LIST=data.map(function(o){return{id:o['id'],name:o['name'],cat:o['cat'],color:o['color'],textColor:o['textColor'],initial:o['name'].slice(0,1),pinned:o['pinned']===true||o['pinned']==='TRUE',love_level:Number(o['taps'])||1,memo:o['memo']||'',articles:[],saved:[]};});
+      LOVE_LIST=data.map(function(o){return{id:o['id'],name:o['name'],cat:o['cat'],color:o['color'],textColor:o['textColor'],initial:o['name'].slice(0,1),pinned:o['pinned']===true||o['pinned']==='TRUE',love_level:Number(o['love_level'])||1,memo:o['memo']||'',articles:[],saved:[]};});
       loveRender();
     }
   });
   updateTopHeader();
+  checkSolstice();
   // iframeの高さをコンテンツに合わせる
   try {
     google.script.host.setHeight(window.innerHeight || document.documentElement.clientHeight);
@@ -1306,7 +1318,6 @@ switchView=function(v){currentView=v;origSwitchView(v);};
 
 var APP_CONFIG={
   birthday:'04-25',
-  loginDate:'2026-04-27',
 };
 
 /* 緊急ニュース */
@@ -1361,7 +1372,7 @@ var SOLSTICE_DATA={
 function checkSolstice(){
   var today=new Date();
   var key=String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
-  var data=SOLSTICE_DATA['03-20'];
+  var data=SOLSTICE_DATA[key];
   if(!data)return;
   document.getElementById('solsticeIcon').textContent=data.icon;
   document.getElementById('solsticeTitle').textContent=data.title;
@@ -1412,10 +1423,6 @@ function showStamp(){
 }
 
 
-window.addEventListener('load',function(){
-  var seasonChip=document.querySelector('.chip.season');
-  if(seasonChip)seasonChip.style.cursor='pointer',seasonChip.onclick=openSolstice;
-});
 var VIEWS=['top','schedule','love','memo','mind'];
 function switchView(v){
   VIEWS.forEach(function(n){
@@ -1593,10 +1600,7 @@ function openDeedsView(){
         /* d.textはユーザー入力データ → escapeHTML適用 */
         +'<div class="deed-entry-text">'+escapeHTML(d.text)+'</div></div>'
         +'<span class="btn-more" onclick="deedToggleMenu(event,'+d.id+')">⋮</span></div>'
-        +'<div id="dmenu-'+d.id+'" style="display:none;position:absolute;top:24px;right:4px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:200;min-width:80px">'
-        +'<div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="deedEdit('+d.id+')">編集</div>'
-        +'<div style="padding:8px 14px;font-size:.78rem;color:#c0454a;cursor:pointer" onclick="deedDelete('+d.id+')">削除</div>'
-        +'</div></div>';
+        +'</div>';
     });
     html+='</div>';
   });
@@ -1606,11 +1610,17 @@ function openDeedsView(){
 function closeDeedsView(){document.getElementById('deedsView').classList.remove('open')}
 function deedToggleMenu(e,id){
   e.stopPropagation();
-  document.querySelectorAll('[id^="dmenu-"]').forEach(function(el){if(el.id!=='dmenu-'+id)el.style.display='none';});
-  var el=document.getElementById('dmenu-'+id);
-  if(el)el.style.display=el.style.display==='none'?'block':'none';
+  var fm=document.getElementById('floatMenu');
+  if(!fm)return;
+  if(fm.dataset.openId===String(id)&&fm.style.display==='block'){fm.style.display='none';fm.dataset.openId='';return;}
+  fm.innerHTML='<div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="event.stopPropagation();deedEdit('+id+');document.getElementById(\'floatMenu\').style.display=\'none\'">編集</div>'
+    +'<div style="padding:8px 14px;font-size:.78rem;color:#c0454a;cursor:pointer" onclick="deedDelete('+id+');document.getElementById(\'floatMenu\').style.display=\'none\'">削除</div>';
+  var r=e.target.getBoundingClientRect();
+  fm.style.top=(r.bottom+window.scrollY+2)+'px';
+  fm.style.left=(r.right-80)+'px';
+  fm.style.display='block';
+  fm.dataset.openId=String(id);
 }
-document.addEventListener('click',function(){document.querySelectorAll('[id^="dmenu-"]').forEach(function(el){el.style.display='none';});});
 function deedDelete(id){
   var backup=ALL_DEEDS.slice();
   deleteWithUndo('記憶',
@@ -1653,7 +1663,6 @@ function deedSaveContent(){
 function deedEdit(id){
   var d=ALL_DEEDS.find(function(x){return x.id===id;});
   if(!d)return;
-  document.querySelectorAll('[id^="dmenu-"]').forEach(function(el){el.style.display='none';});
   deedEditId=id;
   document.getElementById('deedModalTitle').textContent='記憶を編集';
   document.getElementById('deedText').value=d.text;
@@ -1939,7 +1948,7 @@ function schRenderMonth(d){
   }
   html+='</div></div>';
   // 当月全予定リスト（予定がある日のみ表示）
-  var listHtml='<div class="week-detail" style="margin-top:8px;overflow-y:auto">';
+  var listHtml='<div class="week-detail" style="margin-top:12px;overflow-y:auto">';
   var todayStr=schFmtDate(new Date());
   var pastListItems='';var pastListCount=0;
   var monthDays=[];
@@ -2068,10 +2077,14 @@ var schSortMode='asc';
 var schTaskSortMode='priority';
 function schTaskSortToggle(mode){
   schTaskSortMode=mode;
-  document.getElementById('schTaskSortPri').style.background=mode==='priority'?'var(--accent-deep)':'';
-  document.getElementById('schTaskSortPri').style.color=mode==='priority'?'#fff':'';
-  document.getElementById('schTaskSortDate').style.background=mode==='date'?'var(--accent-deep)':'';
-  document.getElementById('schTaskSortDate').style.color=mode==='date'?'#fff':'';
+  var pri=document.getElementById('schTaskSortPri');
+  var dat=document.getElementById('schTaskSortDate');
+  pri.style.background=mode==='priority'?'var(--accent-deep)':'';
+  pri.style.color=mode==='priority'?'#fff':'var(--accent-deep)';
+  pri.style.border=mode==='priority'?'1px solid var(--accent-deep)':'1px solid var(--accent-deep)';
+  dat.style.background=mode==='date'?'var(--accent-deep)':'';
+  dat.style.color=mode==='date'?'#fff':'var(--accent-deep)';
+  dat.style.border=mode==='date'?'1px solid var(--accent-deep)':'1px solid var(--accent-deep)';
   schRenderTask();
 }
 function schSortSet(mode){
@@ -2124,6 +2137,39 @@ function schSearchRender(){
         +'</div>';
     });
   }
+  el.innerHTML=html;
+}
+function memoSearchOpen(){
+  document.getElementById('memoSearchOverlay').classList.add('open');
+  document.getElementById('memoSearchInput').value='';
+  document.getElementById('memoSearchResult').innerHTML='';
+  setTimeout(function(){document.getElementById('memoSearchInput').focus();},100);
+}
+function memoSearchClose(){
+  document.getElementById('memoSearchOverlay').classList.remove('open');
+}
+function memoSearchCloseIfBg(e){
+  if(e.target===document.getElementById('memoSearchOverlay'))memoSearchClose();
+}
+function memoSearchRender(){
+  var q=document.getElementById('memoSearchInput').value.trim();
+  var el=document.getElementById('memoSearchResult');
+  if(!q){el.innerHTML='<div style="text-align:center;color:var(--muted);font-size:.78rem;padding:16px">キーワードを入力してください</div>';return;}
+  var results=MEMOS.filter(function(m){
+    return m.text&&m.text.toLowerCase().indexOf(q.toLowerCase())!==-1;
+  });
+  if(!results.length){el.innerHTML='<div style="text-align:center;color:var(--muted);font-size:.78rem;padding:16px">見つかりません</div>';return;}
+  var html='';
+  results.forEach(function(m){
+    var text=escapeHTML(m.text).replace(
+      new RegExp('('+escapeHTML(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),
+      '<span style="color:var(--accent-deep);font-weight:500">$1</span>'
+    );
+    html+='<div class="ev-item" style="padding:8px 10px;border-bottom:1px solid var(--line);cursor:pointer" onclick="memoSearchClose();memoToggleMenu(event,'+m.id+')">'
+      +'<div style="font-size:.72rem;color:var(--muted);margin-bottom:2px">'+escapeHTML(m.memo_date||'')+(m.cat?'　'+escapeHTML(m.cat):'')+'</div>'
+      +'<div style="font-size:.78rem;color:var(--ink)">'+text+'</div>'
+      +'</div>';
+  });
   el.innerHTML=html;
 }
 function loveSelLevelFn(el){loveSelLevel=Number(el.dataset.level)||1;document.querySelectorAll('.love-level-btn').forEach(function(b){b.classList.toggle('selected',b===el);});}
@@ -2370,10 +2416,10 @@ var JOURNAL=[]
 var GOOD3={}
 var MOOD=[]
 var memoTab='diary';var memoFilter='all';var memoSelectedCats=[];var memoDiaryDate=TODAY_STR;
-var MEMO_CAT_LABEL={note:'備忘録',shop:'買い物',notice:'気付き',idea:'アイデア',search:'ググる',work:'仕事',person:'人物',taste:'味わう'};
-var MEMO_CAT_COLOR={note:'cat-note',shop:'cat-shop',notice:'cat-notice',idea:'cat-idea',search:'cat-search',work:'cat-work',person:'cat-person',taste:'cat-taste'};
-var MEMO_BORDER={note:'var(--c-note)',shop:'var(--c-shop)',notice:'var(--c-notice)',idea:'var(--c-idea)',search:'var(--c-search)',work:'var(--c-work)',person:'var(--c-person)',taste:'var(--c-taste)'};
-var MEMO_CAT_ORDER=['note','shop','notice','idea','search','work','person','taste'];
+var MEMO_CAT_LABEL={note:'備忘録',shop:'買い物',notice:'気付き',idea:'アイデア',search:'ググる',work:'仕事',person:'人物',taste:'味わう',place:'場所'};
+var MEMO_CAT_COLOR={note:'cat-note',shop:'cat-shop',notice:'cat-notice',idea:'cat-idea',search:'cat-search',work:'cat-work',person:'cat-person',taste:'cat-taste',place:'cat-place'};
+var MEMO_BORDER={note:'var(--c-note)',shop:'var(--c-shop)',notice:'var(--c-notice)',idea:'var(--c-idea)',search:'var(--c-search)',work:'var(--c-work)',person:'var(--c-person)',taste:'var(--c-taste)',place:'var(--c-place)'};
+var MEMO_CAT_ORDER=['note','shop','notice','idea','search','work','person','taste','place'];
 var SHOP_PRESETS=['ピアゴ','ポテト','ウエルシア','カインズ','ニトリ','イオン','ダイソー','カルディ'];
 var PERSON_PRESETS=['父','母'];
 var memoSelectedShop='';
@@ -2522,7 +2568,7 @@ function memoToggleMenu(e,id){
   var el=document.getElementById('mmenu-'+id);
   if(el)el.style.display=el.style.display==='none'?'block':'none';
 }
-document.addEventListener('click',function(){document.querySelectorAll('[id^="mmenu-"],[id^="dmenu-"],[id^="cmenu-"]').forEach(function(el){el.style.display='none';});var fm=document.getElementById('floatMenu');if(fm){fm.style.display='none';fm.dataset.openId='';}});
+document.addEventListener('click',function(){document.querySelectorAll('[id^="mmenu-"],[id^="dmenu-"]').forEach(function(el){el.style.display='none';});var fm=document.getElementById('floatMenu');if(fm){fm.style.display='none';fm.dataset.openId='';}});
 function memoDelete(id){
   var backup=MEMOS.slice();
   deleteWithUndo('メモ',
@@ -2587,6 +2633,7 @@ function memoRenderMemo(){
     +'<div class="tag-btn'+(memoFilter==='work'?' active':'')+'" onclick="memoSetFilter(\'work\')">仕事</div>'
     +'<div class="tag-btn'+(memoFilter==='person'?' active':'')+'" onclick="memoSetFilter(\'person\')">人</div>'
     +'<div class="tag-btn'+(memoFilter==='taste'?' active':'')+'" onclick="memoSetFilter(\'taste\')">味わう</div>'
+    +'<div class="tag-btn'+(memoFilter==='place'?' active':'')+'" onclick="memoSetFilter(\'place\')">場所</div>'
     +'</div>';
   filtered.forEach(function(m){
     html+='<div class="memo-card" style="border-left-color:'+(MEMO_BORDER[m.cat.split(',')[0]]||MEMO_BORDER['note'])+';position:relative">'
@@ -2650,7 +2697,7 @@ function memoRenderDiary(){
   if(dayDeeds.length){
     html+='<div><div class="diary-section-label">この日の記憶</div>';
     dayDeeds.sort(function(a,b){return b.year-a.year}).forEach(function(d){
-      html+='<div class="deed-item" style="position:relative"><span class="deed-year">'+d.year+'</span><span class="deed-text">'+escapeHTML(d.text)+'</span><span class="btn-more" style="margin-left:auto" onclick="deedToggleMenu(event,'+d.id+')">⋮</span><div id="dmenu-'+d.id+'" style="display:none;position:absolute;top:24px;right:4px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:200;min-width:80px"><div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="deedEdit('+d.id+')">編集</div><div style="padding:8px 14px;font-size:.78rem;color:#c94040;cursor:pointer" onclick="deedDelete('+d.id+')">削除</div></div></div>';
+      html+='<div class="deed-item" style="position:relative"><span class="deed-year">'+d.year+'</span><span class="deed-text">'+escapeHTML(d.text)+'</span><span class="btn-more" style="margin-left:auto" onclick="deedToggleMenu(event,'+d.id+')">⋮</span></div>';
     });
     html+='</div>';
   }
@@ -2702,7 +2749,7 @@ function memoRenderDeeds(){
   if(dayDeeds.length){
     dayDeeds.sort(function(a,b){return b.year-a.year}).forEach(function(d){
       /* d.textはユーザーデータ → escapeHTML適用 */
-      html+='<div class="deed-entry" style="position:relative"><div style="display:flex;align-items:flex-start;justify-content:space-between"><div><div class="deed-entry-year">'+d.year+'年</div><div class="deed-entry-text">'+escapeHTML(d.text)+'</div></div><span class="btn-more" onclick="deedToggleMenu(event,'+d.id+')">⋮</span></div><div id="dmenu-'+d.id+'" style="display:none;position:absolute;top:24px;right:4px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:200;min-width:80px"><div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="deedEdit('+d.id+')">編集</div><div style="padding:8px 14px;font-size:.78rem;color:#c0454a;cursor:pointer" onclick="deedDelete('+d.id+')">削除</div></div></div>';
+      html+='<div class="deed-entry" style="position:relative"><div style="display:flex;align-items:flex-start;justify-content:space-between"><div><div class="deed-entry-year">'+d.year+'年</div><div class="deed-entry-text">'+escapeHTML(d.text)+'</div></div><span class="btn-more" onclick="deedToggleMenu(event,'+d.id+')">⋮</span></div></div>';
     });
   } else {
     html+='<div style="text-align:center;font-size:.78rem;color:#ccc;padding:24px 0">この日の記憶はまだありません</div>';
@@ -2734,9 +2781,9 @@ var MIND_AI=[
   {id:105,cat:'music',title:'元気が出る音楽',sub:'気持ちを上げたい時に',states:['気分を上げたい','ありがとう']},
   {id:106,cat:'video',title:'ありがとう動画集',sub:'感謝の気持ちを感じたい時に',states:['ありがとう']},
 ];
-var mindCat='all';var mindMoreOpen=false;var mindTarotRevealed=false;var mindIconMap={};var mindNewCat='video';var mindEditId=null;var mindStateFilter='';var mindNewStates=[];var mindNewIcon='🎵';var mindLastUrl='';
+var mindCat='all';var mindMoreOpen=false;var mindIconMap={};var mindNewCat='video';var mindEditId=null;var mindStateFilter='';var mindNewStates=[];var mindNewIcon='🎵';var mindLastUrl='';
 var MIND_ICON_LIST=['🎵','🎙️','🎷','🎸','🎹','🎺','🎬','📷','❤️','💛','⛩️','🛏️','📖','🔮','🧘','☯️','⚡','⭐','🌕','🌑','🌙','☀️','☁️','🌧️','🌈','🌅','🌊','💧','🔥','🌸','🌻','🌷','🌿','🍀','🌳','🐱','🐶','🕊️','🐳','🐲'];
-var MIND_CAT_DEFAULT_ICON={video:'🎬',music:'🎵',audio:'🎙️',image:'📷',fortune:'🔮',healing:'🧘'};
+var MIND_CAT_DEFAULT_ICON={video:'🎬',music:'🎵',audio:'🎙️',image:'📷',healing:'🧘'};
 var MIND_CAT_LABEL={video:'動画',music:'曲',audio:'音声',image:'画像',fortune:'占い',healing:'癒し'};
 var MIND_CAT_COLOR={video:'var(--c-video)',music:'var(--c-music)',audio:'var(--c-audio)',image:'var(--c-image)',fortune:'var(--c-fortune)',healing:'var(--c-healing)'};
 var MIND_CAT_BG={video:'rgba(192,72,72,.12)',music:'rgba(176,144,48,.12)',audio:'rgba(192,96,144,.12)',image:'rgba(72,120,200,.12)',fortune:'rgba(128,80,192,.12)',healing:'rgba(74,152,112,.12)'};
@@ -2821,9 +2868,16 @@ function mindSaveContent(){
 function mindToggleMore(){mindMoreOpen=!mindMoreOpen;var btn=document.getElementById('mindMoreToggle');var list=document.getElementById('mindMoreList');if(btn)btn.classList.toggle('open',mindMoreOpen);if(list)list.classList.toggle('open',mindMoreOpen)}
 function mindToggleMenu(e,id){
   e.stopPropagation();
-  document.querySelectorAll('[id^="cmenu-"]').forEach(function(el){if(el.id!=='cmenu-'+id)el.style.display='none';});
-  var el=document.getElementById('cmenu-'+id);
-  if(el)el.style.display=el.style.display==='none'?'block':'none';
+  var fm=document.getElementById('floatMenu');
+  if(!fm)return;
+  if(fm.dataset.openId===String(id)&&fm.style.display==='block'){fm.style.display='none';fm.dataset.openId='';return;}
+  fm.innerHTML='<div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="event.stopPropagation();mindEdit('+id+');document.getElementById(\'floatMenu\').style.display=\'none\'">編集</div>'
+    +'<div style="padding:8px 14px;font-size:.78rem;color:#c0454a;cursor:pointer" onclick="mindDelete('+id+');document.getElementById(\'floatMenu\').style.display=\'none\'">削除</div>';
+  var r=e.target.getBoundingClientRect();
+  fm.style.top=(r.bottom+window.scrollY+2)+'px';
+  fm.style.left=(r.right-80)+'px';
+  fm.style.display='block';
+  fm.dataset.openId=String(id);
 }
 function mindDelete(id){
   var backup=MIND_MY.slice();
@@ -2835,7 +2889,6 @@ function mindDelete(id){
 function mindEdit(id){
   var m=MIND_MY.find(function(x){return x.id===id;});
   if(!m)return;
-  document.querySelectorAll('[id^="cmenu-"]').forEach(function(el){el.style.display='none';});
   mindEditId=id;
   document.getElementById('mindModalTitle').textContent='コンテンツを編集';
   document.getElementById('mindTitle').value=m.title;
@@ -2853,13 +2906,6 @@ function mindChangeIcon(id){
   input.onchange=function(e){var file=e.target.files[0];if(!file)return;var r=new FileReader();r.onload=function(ev){mindIconMap[id]=ev.target.result;mindRender()};r.readAsDataURL(file)};
   input.click();
 }
-function mindToggleFortune(id){var el=document.getElementById('cfs-'+id);if(el)el.classList.toggle('open')}
-function mindRevealTarot(){
-  if(mindTarotRevealed)return;mindTarotRevealed=true;
-  var results=['🌟 星 — 希望と再生。今は自分を信じて進む時。','☀️ 太陽 — 活力と成功。明るい未来が待っている。','🌙 月 — 直感と無意識。内なる声に耳を傾けて。'];
-  ['tc0','tc1','tc2'].forEach(function(id,i){setTimeout(function(){var el=document.getElementById(id);if(el){el.classList.add('revealed');el.textContent=['🌟','☀️','🌙'][i]}},i*300)});
-  setTimeout(function(){var r=document.getElementById('mindTarotResult');if(r){r.style.display='block';r.textContent=results[Math.floor(Math.random()*results.length)]}},1200);
-}
 function mindRenderCard(m){
   var faviconUrl=null;try{if(!mindIconMap[m.id]&&m.url)faviconUrl='https://www.google.com/s2/favicons?sz=64&domain='+(new URL(m.url)).hostname;}catch(e){}
   var iconContent=mindIconMap[m.id]?'<img src="'+mindIconMap[m.id]+'" alt="" style="width:100%;height:100%;border-radius:8px;object-fit:cover">':m.icon?m.icon:faviconUrl?'<img src="'+faviconUrl+'" alt="" style="width:28px;height:28px;border-radius:4px;object-fit:contain">':'📎';
@@ -2867,17 +2913,14 @@ function mindRenderCard(m){
   return '<div class="c-card" style="border-left-color:'+MIND_CAT_COLOR[m.cat]+';position:relative;cursor:pointer" onclick="mindTapCard('+m.id+')">'
     +'<div class="c-head"><div class="c-icon-wrap" onclick="event.stopPropagation();mindChangeIcon('+m.id+')">'
     +'<div class="c-icon" style="background:'+MIND_CAT_BG[m.cat]+'">'+iconContent+'</div><div class="icon-edit">✎</div></div>'
-    +'<div class="c-info"><div class="c-title">'+escapeHTML(m.title)+'</div>'+(m.sub?'<div class="s-sub">'+escapeHTML(m.sub)+'</div>':'')
+    +'<div class="c-info"><div class="c-title" style="display:flex;align-items:center;gap:5px">'+escapeHTML(m.title)+(m.from_ai?'<span class="ai-badge">AI提案</span>':'')+'</div>'+(m.sub?'<div class="s-sub">'+escapeHTML(m.sub)+'</div>':'')
     +(m.states&&m.states.length?'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">'+m.states.map(function(s){return'<span style="font-size:10px;padding:2px 7px;border-radius:999px;background:#f0e8ff;color:#534AB7">'+escapeHTML(s)+'</span>';}).join('')+'</div>':'')
     +'</div></div>'
     +'<div class="c-meta"><span class="c-cat-badge" style="background:'+MIND_CAT_BG[m.cat]+';color:'+MIND_CAT_COLOR[m.cat]+'">'+MIND_CAT_LABEL[m.cat]+'</span>'
     +'<span class="c-tap">'+m.taps+'回</span>'
     +'</div>'
     +'<span class="btn-more" style="position:absolute;top:8px;right:4px" onclick="event.stopPropagation();mindToggleMenu(event,'+m.id+')">⋮</span>'
-    +'<div id="cmenu-'+m.id+'" style="display:none;position:absolute;top:24px;right:4px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:200;min-width:80px">'
-    +'<div style="padding:8px 14px;font-size:.78rem;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)" onclick="event.stopPropagation();mindEdit('+m.id+')">編集</div>'
-    +'<div style="padding:8px 14px;font-size:.78rem;color:#c0454a;cursor:pointer" onclick="mindDelete('+m.id+')">削除</div>'
-    +'</div></div>';
+    +'</div>';
 }
 function mindTapCard(id){
   var m=MIND_MY.find(function(x){return x.id===id;});
@@ -2887,31 +2930,11 @@ function mindTapCard(id){
   gasCall('saveMind',{id:m.id,title:m.title,sub:m.sub||'',url:m.url||'',cat:m.cat||'audio',icon:m.icon||'',taps:m.taps,states:(m.states||[]).join(',')},function(){});
   mindRender();
 }
-function mindRenderFortune(){
-  var sections=[
-    {id:'numerology',title:'数秘術',sub:'パーソナル・デイ 2',body:'今日はパーソナル・デイ2。協調・受容・直感の日。無理に前進せず、流れに乗ることが大切。'},
-    {id:'kyusei',title:'九星気学',sub:'一白水星',body:'一白水星の日。内向き・静的なエネルギー。外に出るより内を整える日。北の方位が吉。'},
-    {id:'koyomi',title:'暦・吉日',sub:'大安 · 一粒万倍日',body:'大安は六曜で最も縁起の良い日。一粒万倍日は始めたことが大きく育つとされる日。'},
-    {id:'hougan',title:'方位',sub:'北・北東が吉',body:'今日の吉方位は北・北東。重要な外出はできるだけ吉方位に向かう形で計画を。'},
-  ];
-  var html='<div class="fortune-card"><div class="fortune-card-title">今日の占い</div><div class="fortune-sections">';
-  sections.forEach(function(s){
-    html+='<div class="fortune-section open" id="cfs-'+s.id+'" onclick="mindToggleFortune(\''+s.id+'\')">'
-      +'<div class="fortune-section-head"><div class="fortune-section-title">'+s.title+'</div>'
-      +'<div style="display:flex;align-items:center;gap:6px"><div class="fortune-section-sub">'+s.sub+'</div><div class="fortune-arr">▼</div></div></div>'
-      +'<div class="fortune-section-body">'+s.body+'</div></div>';
-  });
-  html+='</div><div class="tarot-area"><div class="tarot-label">タロット — 3枚引き</div>'
-    +'<div class="tarot-cards"><div class="tarot-card" id="tc0">🂠</div><div class="tarot-card" id="tc1">🂠</div><div class="tarot-card" id="tc2">🂠</div></div>'
-    +'<div class="tarot-result" id="mindTarotResult"></div>'
-    +'<button class="tarot-btn" onclick="mindRevealTarot()">カードを引く</button></div></div>';
-  return html;
-}
 /* 削除確認：…メニューをインライン確認UIに差し替える */
 function showDeleteConfirm(msg,onConfirm){
   var trigger=event&&event.target;
   if(!trigger)return;
-  var menuEl=trigger.closest('[id^="mmenu-"],[id^="dmenu-"],[id^="cmenu-"]');
+  var menuEl=trigger.closest('[id^="mmenu-"],[id^="dmenu-"]');
   if(!menuEl)return;
   menuEl.innerHTML='<div style="padding:8px 10px;font-size:.72rem;color:#484440;border-bottom:1px solid var(--line)">'+msg+'</div>'
     +'<div style="display:flex">'
@@ -2955,14 +2978,13 @@ function mindAiAdd(item){
   if(MIND_MY.find(function(x){return x.title===item.title;})){showToast('すでに追加済みです');return;}
   var newItem={id:Date.now(),title:item.title,sub:item.sub||'',url:item.url||'',cat:item.cat||'audio',icon:item.icon||MIND_CAT_DEFAULT_ICON[item.cat||'audio']||'📎',taps:0,states:item.states||[]};
   MIND_MY.unshift(newItem);
-  gasCall('saveMind',{id:newItem.id,title:newItem.title,sub:newItem.sub,url:newItem.url||'',cat:newItem.cat,icon:newItem.icon,taps:0,states:(newItem.states||[]).join(',')},function(){});
+  gasCall('saveMind',{id:newItem.id,title:newItem.title,sub:newItem.sub,url:newItem.url||'',cat:newItem.cat,icon:newItem.icon,taps:0,states:(newItem.states||[]).join(','),from_ai:1},function(){});
   mindRender();
 }
 function mindRender(){
   var c=document.getElementById('mindContent');if(!c)return;
   var html='';
-  if(mindCat==='fortune'){html+=mindRenderFortune();}
-  else{
+  {
     var myF=MIND_MY.filter(function(m){return(mindCat==='all'||m.cat===mindCat)&&(!mindStateFilter||(m.states&&m.states.indexOf(mindStateFilter)>=0));});
     var aiF=MIND_AI.filter(function(m){return(mindCat==='all'||m.cat===mindCat)&&(!mindStateFilter||(m.states&&m.states.indexOf(mindStateFilter)>=0));});
     var sorted=myF.slice().sort(function(a,b){return b.taps-a.taps});
@@ -2977,7 +2999,7 @@ function mindRender(){
       html+='</div>';
     }
     if(aiF.length){
-      html+='<div class="sec-label">AI提案</div>';
+      html+='<div class="sec-label" style="margin-top:10px">AI提案</div>';
       aiF.slice(0,3).forEach(function(m){
         var mJson=encodeURIComponent(JSON.stringify({title:m.title,sub:m.sub||'',url:m.url||'',cat:m.cat||'audio',icon:m.icon||'',states:m.states||[]}));
         /* m.title, m.subはAI生成データだが将来的にユーザー保存になるためescapeHTML適用 */
@@ -3001,55 +3023,6 @@ window.addEventListener('load',function(){
 
 
 
-/* ══ クイックメモ ══ */
-var quickMemoSelectedCat='気づき';var quickMoodChanged=false;
-var MEMO_CATS_QUICK=['気づき','備忘録','買い物','アイデア','ググる','味わう','仕事','人物'];
-
-function openQuickMemo(){
-  quickMemoSelectedCat='気づき';
-  var el=document.getElementById('quickMemoCats');
-  el.innerHTML=MEMO_CATS_QUICK.map(function(c){
-    return '<div onclick="quickMemoSelectCat(\''+c+'\')" id="qcat-'+c+'" style="font-size:11px;border:0.5px solid var(--line);border-radius:20px;padding:3px 10px;cursor:pointer;'+(c==='気づき'?'background:var(--accent);color:#fff;border-color:var(--accent)':'color:var(--ink)')+'">'+c+'</div>';
-  }).join('');
-  document.getElementById('quickMemoText').value='';
-  quickMoodChanged=false;
-  var qsl=document.getElementById('quickMoodSlider');
-  if(qsl){qsl.value=moodVal;qsl.style.background='linear-gradient(to right,#ccc 40%,#e0e0e0 40%)';}
-  var qout=document.getElementById('quickMoodOut');
-  if(qout){qout.textContent='未選択';qout.style.color='var(--muted)';qout.style.fontWeight='400';}
-  var modal=document.getElementById('quickMemoModal');
-  modal.style.display='flex';
-}
-
-function quickMemoSelectCat(cat){
-  quickMemoSelectedCat=cat;
-  MEMO_CATS_QUICK.forEach(function(c){
-    var el=document.getElementById('qcat-'+c);
-    if(!el)return;
-    if(c===cat){
-      el.style.background='var(--accent)';el.style.color='#fff';el.style.borderColor='var(--accent)';
-    } else {
-      el.style.background='';el.style.color='var(--ink)';el.style.borderColor='var(--line)';
-    }
-  });
-}
-
-function closeQuickMemo(){
-  document.getElementById('quickMemoModal').style.display='none';
-}
-
-function saveQuickMemo(){
-  var text=document.getElementById('quickMemoText').value.trim();
-  if(!text)return;
-  var newId=Date.now();
-  var qMoodVal=parseInt(document.getElementById('quickMoodSlider').value);
-  /* MEMOSにローカル追加 → GASへ保存 */
-  MEMOS.unshift({id:newId,memo_date:TODAY_STR,cat:quickMemoSelectedCat,text:text,excludeDiary:false,mood:qMoodVal});
-  gasCall('saveMemo',{id:newId,memo_date:TODAY_STR,cat:quickMemoSelectedCat,text:text,excludeDiary:false,mood:qMoodVal},function(res){
-    if(res&&res.ok)console.log('メモを保存しました');
-  });
-  closeQuickMemo();
-}
 </script>
 <div class="modal-overlay" id="memoModalOverlay" onclick="memoCloseIfBg(event)">
   <div class="modal">
@@ -3064,6 +3037,7 @@ function saveQuickMemo(){
       <div class="modal-cat-btn" id="mcat-work" onclick="memoToggleCat('work')">仕事</div>
       <div class="modal-cat-btn" id="mcat-person" onclick="memoToggleCat('person')">人</div>
       <div class="modal-cat-btn" id="mcat-taste" onclick="memoToggleCat('taste')">味わう</div>
+      <div class="modal-cat-btn" id="mcat-place" onclick="memoToggleCat('place')">場所</div>
     </div>
     <div class="shop-fields" id="shopFields" style="display:none">
       <div style="font-size:.68rem;color:var(--muted);margin-bottom:6px">お店</div>
@@ -3092,26 +3066,6 @@ function saveQuickMemo(){
     <div class="modal-actions">
       <button class="btn soft" onclick="memoCloseModal()">キャンセル</button>
       <button class="btn primary" onclick="memoSave()">保存</button>
-    </div>
-  </div>
-</div>
-<div id="quickMemoModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;align-items:flex-end;justify-content:center">
-  <div style="background:var(--paper);border-radius:16px 16px 0 0;padding:16px;width:100%;max-width:480px">
-    <div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:12px">メモを書く</div>
-    <div id="quickMemoCats" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
-    <textarea id="quickMemoText" placeholder="今日の気づきや一言を…" style="width:100%;border:0.5px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--ink);background:var(--bg);min-height:80px;resize:none;font-family:inherit"></textarea>
-    <div style="margin-top:10px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <div style="font-size:11px;color:var(--muted)">気分（任意）</div>
-        <div id="quickMoodOut" style="font-size:11px;color:var(--muted)">未選択</div>
-      </div>
-      <input type="range" min="0" max="100" value="40" id="quickMoodSlider" class="mood-slider"
-        oninput="quickMoodChanged=true;var v=parseInt(this.value);var label=v<=19?'休もうか':v<=39?'一息つこう':v<=59?'ぼちぼち':v<=79?'ほどよい':'軽やか';var col=v<=19?'#c0454a':v<=39?'#c47a3a':v<=59?'#b7991f':v<=79?'#3aaa8a':'#00a3af';document.getElementById('quickMoodOut').textContent=label+'・'+v;document.getElementById('quickMoodOut').style.color=col;document.getElementById('quickMoodOut').style.fontWeight='600';this.style.background='linear-gradient(to right,#ccc '+this.value+'%,#e0e0e0 '+this.value+'%)';"
-        style="width:100%">
-    </div>
-    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px">
-      <button onclick="closeQuickMemo()" style="font-size:12px;padding:6px 12px;border:0.5px solid var(--line);border-radius:8px;background:transparent;cursor:pointer;color:var(--ink)">キャンセル</button>
-      <button onclick="saveQuickMemo()" style="font-size:12px;padding:6px 12px;border:none;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer">保存</button>
     </div>
   </div>
 </div>
