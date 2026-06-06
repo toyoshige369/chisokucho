@@ -2650,6 +2650,57 @@ function memoRenderMemo(){
   });
   return html;
 }
+function moodRenderGraph(){
+  var W=300,H=80,padL=4,padR=4,padT=8,padB=16;
+  var now=new Date();
+  /* 過去30日の日付リストを生成 */
+  var days=[];
+  for(var i=29;i>=0;i--){var d=new Date(now);d.setDate(d.getDate()-i);days.push(d.toISOString().slice(0,10));}
+  /* 日付ごとに平均スコアを集計 */
+  var dayMap={};
+  MOOD.forEach(function(m){
+    var dt=m.recorded_at?m.recorded_at.slice(0,10):'';
+    if(!dt)return;
+    if(!dayMap[dt])dayMap[dt]={sum:0,n:0};
+    dayMap[dt].sum+=Number(m.score)||0;
+    dayMap[dt].n++;
+  });
+  /* 有効な点だけ座標化 */
+  var pts=[];
+  days.forEach(function(dt,i){
+    if(!dayMap[dt])return;
+    var score=dayMap[dt].sum/dayMap[dt].n;
+    var x=padL+(i/29)*(W-padL-padR);
+    var y=padT+(1-score/100)*(H-padT-padB);
+    pts.push({x:x,y:y,dt:dt,i:i});
+  });
+  if(pts.length===0)return '<div id="mood-graph-wrap" style="margin:0 0 12px;padding:6px 8px;background:var(--card);border:0.5px solid var(--line);border-radius:10px"><svg id="mood-graph" width="100%" viewBox="0 0 300 80" preserveAspectRatio="none"></svg></div>';
+  /* 線を連続区間ごとに polyline で描画 */
+  var lines='';var seg=[];
+  for(var k=0;k<pts.length;k++){
+    seg.push(pts[k].x.toFixed(1)+','+pts[k].y.toFixed(1));
+    var next=pts[k+1];
+    if(!next||next.i!==pts[k].i+1){
+      if(seg.length>1)lines+='<polyline points="'+seg.join(' ')+'" fill="none" stroke="#d3b259" stroke-width="1.8" stroke-linejoin="round"/>';
+      seg=[];
+    }
+  }
+  /* 点 */
+  var dots=pts.map(function(p){return'<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3" fill="#d3b259"/>';}).join('');
+  /* X軸ラベル：7日ごと */
+  var xLabels='';
+  days.forEach(function(dt,i){
+    if(i%7!==0)return;
+    var x=padL+(i/29)*(W-padL-padR);
+    var d=new Date(dt);
+    var lbl=(d.getMonth()+1)+'/'+(d.getDate());
+    xLabels+='<text x="'+x.toFixed(1)+'" y="'+(H-2)+'" font-size="7" fill="var(--muted)" text-anchor="middle">'+lbl+'</text>';
+  });
+  return '<div id="mood-graph-wrap" style="margin:0 0 12px;padding:6px 8px;background:var(--card);border:0.5px solid var(--line);border-radius:10px">'
+    +'<svg id="mood-graph" width="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">'
+    +lines+dots+xLabels
+    +'</svg></div>';
+}
 function memoRenderDiary(){
   var isToday=memoDiaryDate===TODAY_STR;
   var moodEntry=MOOD.slice().filter(function(m){return m.recorded_at&&m.recorded_at.slice(0,10)===memoDiaryDate;}).sort(function(a,b){return b.recorded_at.localeCompare(a.recorded_at);})[0];
@@ -2660,7 +2711,7 @@ function memoRenderDiary(){
   var g3=GOOD3[memoDiaryDate]||['','',''];
   var dayMemos=MEMOS.filter(function(m){return m.memo_date===memoDiaryDate&&!m.excludeDiary});
   var rdonly=!isToday;
-  var html='<div class="diary-nav">'
+  var html=moodRenderGraph()+'<div class="diary-nav">'
     +'<div class="hdr-arr" onclick="memoPrevDiary()">‹</div>'
     +'<div><div class="diary-date-label">'+dateLabel+(isToday?'<span class="diary-today-badge">今日</span>':'<span class="badge-return" onclick="memoGoToday()">今日へ</span>')+'</div></div>'
     +'<div style="display:flex;align-items:center;gap:10px;padding:6px 0 2px">'
