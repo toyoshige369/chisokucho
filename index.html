@@ -2856,7 +2856,7 @@ function moodRenderGraph(){
   } else {
     statHtml='<div style="text-align:center;font-size:.78rem;color:var(--muted);padding:12px 0">この期間のデータはありません</div>';
   }
-  area.innerHTML='<div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">'+periodBtns+'</div>'
+  area.innerHTML='<div style="display:flex;justify-content:space-evenly;flex-wrap:wrap;margin-bottom:4px">'+periodBtns+'</div>'
     +navHtml+svgHtml+statHtml;
 }
 function memoRenderDiary(){
