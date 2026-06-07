@@ -444,22 +444,6 @@ html,body{
 
 @keyframes float-up{0%{opacity:0;transform:translateY(20px)}20%{opacity:1;transform:translateY(0)}80%{opacity:1;transform:translateY(-5px)}100%{opacity:0;transform:translateY(-20px)}}
 
-/* ── サービス更新通知 ── */
-.service-banner{background:rgba(106,159,212,.12);border-bottom:1px solid rgba(106,159,212,.2);padding:5px 10px;display:none;align-items:center;gap:6px;font-size:.68rem;color:#1a4a7a;cursor:pointer;flex-shrink:0}
-.service-banner.show{display:flex}
-.service-banner.done{background:rgba(80,160,80,.1);border-color:rgba(80,160,80,.2);color:#3a6b3a;cursor:default}
-.service-dot{width:6px;height:6px;border-radius:50%;background:#6a9fd4;flex-shrink:0}
-.service-done-dot{width:6px;height:6px;border-radius:50%;background:#639922;flex-shrink:0}
-.service-btn{font-size:.6rem;background:rgba(106,159,212,.2);border-radius:4px;padding:1px 6px;white-space:nowrap;margin-left:auto}
-
-/* サービス更新ポップアップ */
-.service-popup-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:220;border-radius:26px;align-items:flex-end}
-.service-popup-overlay.open{display:flex}
-.service-popup{background:var(--paper);border-radius:18px 18px 0 0;padding:16px 14px 20px;width:100%}
-.service-popup-title{font-size:.88rem;font-weight:700;color:#1a4a7a;margin-bottom:6px}
-.service-popup-badge{font-size:.68rem;background:rgba(106,159,212,.1);border-radius:4px;padding:2px 8px;color:#3a6a9a;margin-bottom:8px;display:inline-block}
-.service-popup-body{font-size:.82rem;color:var(--text);line-height:1.6;margin-bottom:8px}
-.service-popup-changes{font-size:.72rem;background:#f5f5f5;border-radius:8px;padding:8px 10px;color:#555;margin-bottom:10px;line-height:1.7}
 
 /* ── タスク追加モーダル ── */
 .priority-row{display:flex;gap:6px;margin-bottom:8px}
@@ -475,20 +459,6 @@ html,body{
 <body>
 <div class="toast" id="toastMsg"></div>
 <div class="screen">
-
-<!-- ══ サービス更新ポップアップ ══ -->
-<div class="service-popup-overlay" id="servicePopupOverlay" onclick="closeServicePopup(event)">
-  <div class="service-popup">
-    <div class="service-popup-title">🔔 サービス更新のお知らせ</div>
-    <div class="service-popup-badge" id="servicePopupBadge">Googleカレンダー API</div>
-    <div class="service-popup-body" id="servicePopupBody">カレンダーの色取得方法が変更されました。知足帳の表示に影響する可能性があります。</div>
-    <div class="service-popup-changes" id="servicePopupChanges">変更点：<br>· colorId の取得先が変更<br>· 対応バージョン：v3.2以降</div>
-    <div class="modal-actions">
-      <button class="btn soft" onclick="closeServicePopup(null)">後で</button>
-      <button class="btn primary" style="background:#6a9fd4" onclick="approveServiceUpdate()">対応を許可する</button>
-    </div>
-  </div>
-</div>
 
 <!-- ══ タスク追加モーダル ══ -->
 <div class="modal-overlay" id="taskModalOverlay" onclick="closeTaskModalIfBg(event)">
@@ -612,7 +582,6 @@ html,body{
       <div id="moodBadgeTop" onclick="openMood()" style="cursor:pointer"></div>
     </div>
     <div class="hdr-right">
-      <div id="bellBtn" onclick="openServicePopup()" style="position:relative;cursor:pointer;font-size:1rem;line-height:1;padding:2px">🔔<span id="bellDot" style="display:none;position:absolute;top:-1px;right:-1px;width:7px;height:7px;border-radius:50%;background:#c94040;border:1px solid var(--paper)"></span></div>
     </div>
   </div>
   <div class="scroll">
@@ -1016,23 +985,6 @@ function checkMemoMilestone(count){
   document.getElementById('stampImg').innerHTML='📝<br><span style="font-size:.85rem;font-family:\'BIZ UDPGothic\',sans-serif;color:#5a4232">'+msg+'</span>';
   showStamp();
   if(count===100||count===500||count===1000)setTimeout(launchFireworks,500);
-}
-
-/* ══ サービス更新通知 ══ */
-var serviceUpdateDone=false;
-function showBellDot(v){var d=document.getElementById('bellDot');if(d)d.style.display=v?'block':'none';}
-function openServicePopup(){
-  if(serviceUpdateDone)return;
-  document.getElementById('servicePopupOverlay').classList.add('open');
-}
-function closeServicePopup(e){
-  if(e===null||e.target===document.getElementById('servicePopupOverlay'))
-    document.getElementById('servicePopupOverlay').classList.remove('open');
-}
-function approveServiceUpdate(){
-  serviceUpdateDone=true;
-  document.getElementById('servicePopupOverlay').classList.remove('open');
-  showBellDot(false);
 }
 
 /* ══ Top Love 未確認通知 ══ */
