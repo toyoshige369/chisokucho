@@ -454,6 +454,23 @@ html,body{
 
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(72,68,64,.9);color:#fff;font-size:.78rem;padding:8px 18px;border-radius:999px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1;pointer-events:auto}
+
+/* ── オラクルカードモーダル ── */
+.oracle-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(20,10,40,.75);z-index:500;align-items:center;justify-content:center;border-radius:26px}
+.oracle-overlay.open{display:flex}
+.oracle-modal{display:flex;flex-direction:column;align-items:center;gap:20px;padding:32px 20px;width:100%;max-width:340px}
+.oracle-title{font-size:.78rem;color:rgba(255,255,255,.6);letter-spacing:.08em;font-family:"BIZ UDPGothic",sans-serif}
+.oracle-card-wrap{perspective:800px;width:200px;height:300px;cursor:pointer}
+.oracle-card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,0,.2,1)}
+.oracle-card-inner.flipped{transform:rotateY(180deg)}
+.oracle-card-face{position:absolute;top:0;left:0;width:100%;height:100%;backface-visibility:hidden;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.oracle-card-back{background:linear-gradient(135deg,#2a1a4a,#1a0a30);border:1px solid rgba(128,80,192,.4)}
+.oracle-card-back-pattern{font-size:2.5rem;opacity:.3}
+.oracle-card-front{background:linear-gradient(160deg,#f8f4ee,#ede6d8);border:1px solid rgba(211,178,89,.4);transform:rotateY(180deg);flex-direction:column;gap:16px;padding:24px}
+.oracle-card-word{font-size:1.05rem;font-weight:700;color:#484440;line-height:1.6;text-align:center;font-family:"BIZ UDPGothic",sans-serif}
+.oracle-card-sub{font-size:.72rem;color:#9a8470;text-align:center;line-height:1.5}
+.oracle-hint{font-size:.68rem;color:rgba(255,255,255,.4);text-align:center}
+.oracle-close{font-size:.72rem;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:6px 20px;cursor:pointer;background:none;font-family:inherit}
 </style>
 </head>
 <body>
@@ -481,6 +498,26 @@ html,body{
       <button class="btn soft" onclick="closeTaskModal()">キャンセル</button>
       <button class="btn primary" onclick="saveTask()">追加</button>
     </div>
+  </div>
+</div>
+
+<!-- ══ オラクルカードモーダル ══ -->
+<div class="oracle-overlay" id="oracleOverlay" onclick="oracleCloseIfBg(event)">
+  <div class="oracle-modal">
+    <div class="oracle-title">今日の一枚</div>
+    <div class="oracle-card-wrap" id="oracleCardWrap" onclick="flipOracleCard()">
+      <div class="oracle-card-inner" id="oracleCardInner">
+        <div class="oracle-card-face oracle-card-back">
+          <div class="oracle-card-back-pattern">✦</div>
+        </div>
+        <div class="oracle-card-face oracle-card-front">
+          <div class="oracle-card-word" id="oracleWord"></div>
+          <div class="oracle-card-sub" id="oracleSub"></div>
+        </div>
+      </div>
+    </div>
+    <div class="oracle-hint" id="oracleHint">カードをタップしてめくる</div>
+    <button class="oracle-close" onclick="closeOracleModal()">閉じる</button>
   </div>
 </div>
 
@@ -614,7 +651,7 @@ html,body{
       <hr style="border:none;border-top:1px solid rgba(211,178,89,.25);margin:16px 0">
       <div class="ch-ul" style="--ul-color:var(--c-fortune)">
         <div class="fortune-theme serif">今日は「整える日」</div>
-        <a class="ch-more" href="#" onclick="switchView('mind');var _el=document.querySelector('.mind-cat[onclick*=fortune]');if(_el)mindFilter('fortune',_el);return false">詳細</a>
+        <span class="ch-more" onclick="openOracleModal()" style="display:inline-flex;align-items:center;gap:3px;background:rgba(128,80,192,.1);border:1px solid rgba(128,80,192,.3);color:#8050c0;border-radius:999px;padding:2px 9px;font-size:.68rem;font-weight:700;cursor:pointer">✦ 占う</span>
       </div>
       <div class="fortune-body" style="margin-top:4px">静かに整えるほど流れがよくなる日。タスクは2つに絞り、1つを小さく始めると進めやすい。</div>
     </div>
@@ -1336,6 +1373,58 @@ function checkSolstice(){
 }
 function openSolstice(){document.getElementById('solsticeOverlay').classList.add('show')}
 function closeSolstice(){document.getElementById('solsticeOverlay').classList.remove('show')}
+
+// ── Oracle card ──
+const ORACLE_CARDS = [
+  {word:"今日は、ただそこにいるだけでいい。", sub:"存在することが、すでに十分です。"},
+  {word:"手放すことで、入ってくるものがある。", sub:"今日、何かを手放してみませんか。"},
+  {word:"小さな気づきが、日々を変えていく。", sub:"見過ごしていたものに、目を向ける日。"},
+  {word:"急がなくていい。今日は今日のペースで。", sub:"焦りを感じたら、一度だけ深呼吸を。"},
+  {word:"比べなくていい。あなたはあなたのままで。", sub:"誰かと違っていることは、豊かさです。"},
+  {word:"休むことも、前に進むことです。", sub:"今日の疲れを、ねぎらってあげてください。"},
+  {word:"答えはすでに、あなたの中にある。", sub:"静かに内側に問いかけてみましょう。"},
+  {word:"今日という日は、一度しかありません。", sub:"小さなことを、丁寧に過ごしましょう。"},
+  {word:"整えることが、流れを生む。", sub:"まず一つ、身の回りを整えてみては。"},
+  {word:"感謝は、心の余白を広げてくれる。", sub:"今日、誰かに感謝を伝えてみましょう。"},
+  {word:"変わらなくていい日もある。", sub:"今日は、このままでいることを許しましょう。"},
+  {word:"小さな一歩が、やがて大きな道になる。", sub:"今日できる、最小の一歩を踏み出しましょう。"},
+];
+
+function getOracleCardOfDay() {
+  const today = new Date();
+  const key = `oracle_${today.getFullYear()}_${today.getMonth()}_${today.getDate()}`;
+  let idx = localStorage.getItem(key);
+  if (idx === null) {
+    idx = Math.floor(Math.random() * ORACLE_CARDS.length);
+    localStorage.setItem(key, idx);
+  }
+  return ORACLE_CARDS[parseInt(idx)];
+}
+
+function openOracleModal() {
+  const card = getOracleCardOfDay();
+  document.getElementById('oracleWord').textContent = card.word;
+  document.getElementById('oracleSub').textContent = card.sub;
+  document.getElementById('oracleCardInner').classList.remove('flipped');
+  document.getElementById('oracleHint').style.display = '';
+  document.getElementById('oracleOverlay').classList.add('open');
+}
+
+function flipOracleCard() {
+  const inner = document.getElementById('oracleCardInner');
+  if (!inner.classList.contains('flipped')) {
+    inner.classList.add('flipped');
+    document.getElementById('oracleHint').style.display = 'none';
+  }
+}
+
+function closeOracleModal() {
+  document.getElementById('oracleOverlay').classList.remove('open');
+}
+
+function oracleCloseIfBg(e) {
+  if (e.target === document.getElementById('oracleOverlay')) closeOracleModal();
+}
 
 /* 花火 */
 var fireworksTimer=null;
