@@ -586,3 +586,13 @@ function setWeeklyBackupTrigger() {
     .create();
   return {ok: true};
 }
+
+function doPost(e) {
+  var out = {
+    ok: true,
+    contentType: (e && e.postData) ? e.postData.type : null,
+    body: (e && e.postData) ? e.postData.contents : null
+  };
+  return ContentService.createTextOutput(JSON.stringify(out))
+    .setMimeType(ContentService.MimeType.JSON);
+}
