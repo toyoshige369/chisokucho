@@ -596,3 +596,13 @@ function doPost(e) {
   return ContentService.createTextOutput(JSON.stringify(out))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+function setupAppSecret() {
+  var p = PropertiesService.getScriptProperties();
+  if (p.getProperty('APP_SECRET')) {
+    Logger.log('既に存在します。中止しました。');
+    return;
+  }
+  p.setProperty('APP_SECRET', Utilities.getUuid().replace(/-/g, ''));
+  Logger.log('生成しました。');
+}
