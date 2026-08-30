@@ -1281,6 +1281,9 @@ function initApp(){
       loveRender();
     }
   });
+  /* fetch today's memories on startup */
+  var todayMd=TODAY_STR.slice(5).replace('-','/').replace(/^0/,'').replace('/0','/');
+  deedLoadForDate(todayMd);
   updateTopHeader();
   checkSolstice();
   // iframeの高さをコンテンツに合わせる
@@ -1674,11 +1677,6 @@ function deedLoadForDate(md){
   });
 }
 if(document.getElementById('topDeedsCard'))renderTopDeeds();
-/* アプリ起動時に今日の記憶を取得 */
-(function(){
-  var todayMd=TODAY_STR.slice(5).replace('-','/').replace(/^0/,'').replace('/0','/');
-  deedLoadForDate(todayMd);
-})();
 function openDeedsView(){
   var scroll=document.getElementById('deedsScroll');if(!scroll)return;
   var grouped={};
