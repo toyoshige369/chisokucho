@@ -471,9 +471,29 @@ html,body{
 .oracle-card-sub{font-size:.72rem;color:#9a8470;text-align:center;line-height:1.5}
 .oracle-hint{font-size:.68rem;color:rgba(255,255,255,.4);text-align:center}
 .oracle-close{font-size:.72rem;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:6px 20px;cursor:pointer;background:none;font-family:inherit}
+
+html.unregistered body>*:not(#deviceGate){display:none}
+#deviceGate{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:var(--bg);border-radius:26px;flex-direction:column;align-items:center;justify-content:center}
+html.unregistered #deviceGate{display:flex}
 </style>
+<script>
+(function(){
+  if(!localStorage.getItem('chisokucho_device_key')){
+    document.documentElement.className+=' unregistered';
+  }
+})();
+</script>
 </head>
 <body>
+<div id="deviceGate">
+  <img src="assets/icon-192.png" alt="" style="width:64px;height:64px;border-radius:14px;margin-bottom:16px">
+  <div style="font-size:.95rem;font-weight:700;color:var(--ink);margin-bottom:8px">端末の登録</div>
+  <div style="font-size:.78rem;color:var(--muted);text-align:center;max-width:260px;margin-bottom:20px">この端末で知足帳を使うために、一度だけ登録します。</div>
+  <input class="modal-input" id="gateSecret" type="password" placeholder="合言葉" style="max-width:240px">
+  <input class="modal-input" id="gateLabel" type="text" placeholder="端末名（例：iPhone）" style="max-width:240px">
+  <button class="btn primary" id="gateSubmit" onclick="gateRegister()" style="margin-top:6px;padding:8px 24px">登録</button>
+  <div id="gateMsg" style="font-size:.72rem;color:#c94040;margin-top:10px;min-height:1em"></div>
+</div>
 <div class="toast" id="toastMsg"></div>
 <div class="screen">
 
@@ -1168,6 +1188,34 @@ function gasCall(action,params,onSuccess,onError){
     .then(function(r){return r.json();})
     .then(function(data){onSuccess&&onSuccess(data);})
     .catch(function(err){console.error(action+' error:',err);onError&&onError(err);});
+}
+
+function gateRegister(){
+  var secret=document.getElementById('gateSecret').value;
+  var label=document.getElementById('gateLabel').value;
+  var msg=document.getElementById('gateMsg');
+  var btn=document.getElementById('gateSubmit');
+  if(!secret||!label){
+    msg.textContent='合言葉と端末名を入力してください';
+    return;
+  }
+  btn.disabled=true;
+  fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'registerDevice',secret:secret,label:label})})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data&&data.ok===true&&data.deviceKey){
+        localStorage.setItem('chisokucho_device_key',data.deviceKey);
+        document.documentElement.className=document.documentElement.className.replace(/\bunregistered\b/,'').trim();
+        initApp();
+      }else{
+        msg.textContent='合言葉が違うようです';
+        btn.disabled=false;
+      }
+    })
+    .catch(function(err){
+      msg.textContent='うまく繋がりませんでした';
+      btn.disabled=false;
+    });
 }
 
 function renderTopDeeds(){
@@ -3267,6 +3315,7 @@ function mindRender(){
 
 /* ══ アプリ起動 ══ */
 window.addEventListener('load',function(){
+  if(!localStorage.getItem('chisokucho_device_key'))return;
   initApp();
   var seasonChip=document.querySelector('.chip.season');
   if(seasonChip){seasonChip.style.cursor='pointer';seasonChip.onclick=openSolstice;}
