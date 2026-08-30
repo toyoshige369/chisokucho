@@ -14,59 +14,66 @@ function doGet(e) {
       .setHeight(812);
   }
 
-  var action = e.parameter.action;
   var ss = SpreadsheetApp.openById(SS_ID);
+  var result = dispatch(e.parameter.action, e.parameter, ss);
+
+  return ContentService
+    .createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function dispatch(action, p, ss) {
   var result;
 
   try {
     if (action === 'getMood') {
       result = getMood(ss);
     } else if (action === 'saveMood') {
-      result = saveMood(ss, e.parameter.score);
+      result = saveMood(ss, p.score);
     } else if (action === 'getMemos') {
       result = getMemos(ss);
     } else if (action === 'saveMemo') {
-      result = saveMemo(ss, e.parameter.id, e.parameter.memo_date || e.parameter.date, e.parameter.time, e.parameter.cat, e.parameter.text, e.parameter.excludeDiary, e.parameter.mood);
+      result = saveMemo(ss, p.id, p.memo_date || p.date, p.time, p.cat, p.text, p.excludeDiary, p.mood);
     } else if (action === 'getTasks') {
       result = getTasks(ss);
     } else if (action === 'saveTask') {
-      result = saveTask(ss, e.parameter.id, e.parameter.name, e.parameter.priority, e.parameter.due_date, e.parameter.due_time, e.parameter.done);
+      result = saveTask(ss, p.id, p.name, p.priority, p.due_date, p.due_time, p.done);
     } else if (action === 'updateTask') {
-      result = updateTask(ss, e.parameter.id, e.parameter.name, e.parameter.priority, e.parameter.due_date, e.parameter.due_time, e.parameter.done);
+      result = updateTask(ss, p.id, p.name, p.priority, p.due_date, p.due_time, p.done);
     } else if (action === 'deleteTask') {
-      result = deleteTask(ss, e.parameter.id);
+      result = deleteTask(ss, p.id);
     } else if (action === 'getDiary') {
-      result = getDiary(ss, e.parameter.date);
+      result = getDiary(ss, p.date);
     } else if (action === 'saveDiary') {
-      result = saveDiary(ss, e.parameter.date, e.parameter.prompt, e.parameter.answer, e.parameter.good1, e.parameter.good2, e.parameter.good3);
+      result = saveDiary(ss, p.date, p.prompt, p.answer, p.good1, p.good2, p.good3);
     } else if (action === 'getLove') {
       result = getLove(ss);
     } else if (action === 'saveLove') {
-      result = saveLove(ss, e.parameter.id, e.parameter.name, e.parameter.cat, e.parameter.color, e.parameter.textColor, e.parameter.pinned, e.parameter.love_level);
+      result = saveLove(ss, p.id, p.name, p.cat, p.color, p.textColor, p.pinned, p.love_level);
     } else if (action === 'deleteLove') {
-      result = deleteLove(ss, e.parameter.id);
+      result = deleteLove(ss, p.id);
     } else if (action === 'getEvents') {
-      result = getEvents(ss, e.parameter.startDate, e.parameter.endDate);
+      result = getEvents(ss, p.startDate, p.endDate);
     } else if (action === 'saveEvent') {
-      result = saveEvent(ss, e.parameter.id, e.parameter.event_date, e.parameter.start_time, e.parameter.end_time, e.parameter.name, e.parameter.sub, e.parameter.color);
+      result = saveEvent(ss, p.id, p.event_date, p.start_time, p.end_time, p.name, p.sub, p.color);
     } else if (action === 'deleteEvent') {
-      result = deleteEvent(ss, e.parameter.id);
+      result = deleteEvent(ss, p.id);
     } else if (action === 'getMind') {
       result = getMind(ss);
     } else if (action === 'saveMind') {
-      result = saveMind(ss, e.parameter.id, e.parameter.title, e.parameter.sub, e.parameter.url, e.parameter.cat, e.parameter.icon, e.parameter.taps, e.parameter.states, e.parameter.from_ai);
+      result = saveMind(ss, p.id, p.title, p.sub, p.url, p.cat, p.icon, p.taps, p.states, p.from_ai);
     } else if (action === 'fetchYouTubeInfo') {
-      result = fetchYouTubeInfo(e.parameter.url);
+      result = fetchYouTubeInfo(p.url);
     } else if (action === 'deleteMemo') {
-      result = deleteMemo(ss, e.parameter.id);
+      result = deleteMemo(ss, p.id);
     } else if (action === 'deleteMind') {
-      result = deleteMind(ss, e.parameter.id);
+      result = deleteMind(ss, p.id);
     } else if (action === 'getDeed') {
-      result = getDeed(ss, e.parameter.deed_date);
+      result = getDeed(ss, p.deed_date);
     } else if (action === 'saveDeed') {
-      result = saveDeed(ss, e.parameter.id, e.parameter.deed_date, e.parameter.year, e.parameter.text);
+      result = saveDeed(ss, p.id, p.deed_date, p.year, p.text);
     } else if (action === 'deleteDeed') {
-      result = deleteDeed(ss, e.parameter.id);
+      result = deleteDeed(ss, p.id);
     } else {
       result = {error: 'unknown action'};
     }
@@ -74,9 +81,35 @@ function doGet(e) {
     result = {error: err.message};
   }
 
-  return ContentService
-    .createTextOutput(JSON.stringify(result))
-    .setMimeType(ContentService.MimeType.JSON);
+  return result;
+}
+
+/* ── auth: devices sheet / registration / verification ── */
+function ensureDevicesSheet(ss) {
+  var sh = ss.getSheetByName('devices');
+  if (!sh) {
+    sh = ss.insertSheet('devices');
+    sh.appendRow(['device_id', 'registered_at', 'label']);
+  }
+  return sh;
+}
+
+function isRegisteredDevice(ss, deviceKey) {
+  if (!deviceKey) return false;
+  var rows = ensureDevicesSheet(ss).getDataRange().getValues();
+  for (var i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === String(deviceKey)) return true;
+  }
+  return false;
+}
+
+function registerDevice(ss, secret, label) {
+  var appSecret = PropertiesService.getScriptProperties().getProperty('APP_SECRET');
+  if (!appSecret) return {error: 'unauthorized'};
+  if (String(secret) !== String(appSecret)) return {error: 'unauthorized'};
+  var key = Utilities.getUuid() + '-' + Utilities.getUuid();
+  ensureDevicesSheet(ss).appendRow([key, now(), String(label || '')]);
+  return {ok: true, deviceKey: key};
 }
 
 /* ── mood: id / recorded_at / score ── */
@@ -588,12 +621,22 @@ function setWeeklyBackupTrigger() {
 }
 
 function doPost(e) {
-  var out = {
-    ok: true,
-    contentType: (e && e.postData) ? e.postData.type : null,
-    body: (e && e.postData) ? e.postData.contents : null
-  };
-  return ContentService.createTextOutput(JSON.stringify(out))
+  var result;
+  try {
+    var req = JSON.parse(e.postData.contents);
+    var ss = SpreadsheetApp.openById(SS_ID);
+    if (req.action === 'registerDevice') {
+      result = registerDevice(ss, req.secret, req.label);
+    } else if (!isRegisteredDevice(ss, req.deviceKey)) {
+      result = {error: 'unauthorized'};
+    } else {
+      result = dispatch(req.action, req.params || {}, ss);
+    }
+  } catch (err) {
+    result = {error: 'bad request'};
+  }
+  return ContentService
+    .createTextOutput(JSON.stringify(result))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
