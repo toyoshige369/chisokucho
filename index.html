@@ -1177,16 +1177,29 @@ var TODAY_STR=TODAY.getFullYear()+'-'+String(TODAY.getMonth()+1).padStart(2,'0')
 
 var GAS_URL='https://script.google.com/macros/s/AKfycbzj0E0luEAucjMYSJaAtkiyLMuYa_e-c-Uvfqj3n8y4P1rjanUXOBO7cro8RxtZ7cQ/exec';
 var GAS_ACTIONS=['getMood','saveMood','getMemos','saveMemo','deleteMemo','getTasks','saveTask','updateTask','deleteTask','getDiary','saveDiary','getLove','saveLove','deleteLove','getEvents','saveEvent','deleteEvent','getMind','saveMind','deleteMind','fetchYouTubeInfo','getDeed','saveDeed','deleteDeed'];
+var _deviceUnauthorizedHandled=false;
+function handleDeviceUnauthorized(){
+  if(_deviceUnauthorizedHandled)return;
+  _deviceUnauthorizedHandled=true;
+  localStorage.removeItem('chisokucho_device_key');
+  document.documentElement.classList.add('unregistered');
+}
 function gasCall(action,params,onSuccess,onError){
   if(GAS_ACTIONS.indexOf(action)<0){
     console.log('[GAS未実装] '+action+' - モックデータを使用');
     return;
   }
-  var p=params||{};p.action=action;
-  var qs=Object.keys(p).map(function(k){return encodeURIComponent(k)+'='+encodeURIComponent(p[k]);}).join('&');
-  fetch(GAS_URL+'?'+qs)
+  var deviceKey=localStorage.getItem('chisokucho_device_key');
+  if(!deviceKey){
+    handleDeviceUnauthorized();
+    return;
+  }
+  fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:action,deviceKey:deviceKey,params:params||{}})})
     .then(function(r){return r.json();})
-    .then(function(data){onSuccess&&onSuccess(data);})
+    .then(function(data){
+      if(data&&data.error==='unauthorized'){handleDeviceUnauthorized();return;}
+      onSuccess&&onSuccess(data);
+    })
     .catch(function(err){console.error(action+' error:',err);onError&&onError(err);});
 }
 
@@ -2626,7 +2639,7 @@ function memoSave(){
   } else {
     var memoMoodVal=parseInt(document.getElementById('memoMoodSlider').value);
     MEMOS.unshift({id:newId,memo_date:TODAY_STR,cat:catStr,text:text,tags:[],shop:null,excludeDiary:excl,mood:memoMoodVal});
-    gasCall('saveMemo',{id:newId,memo_date:TODAY_STR,cat:catStr,text:text,excludeDiary:excl,mood:memoMoodVal},function(res){
+    gasCall('saveMemo',{id:newId,memo_date:TODAY_STR,cat:catStr,text:text,excludeDiary:String(excl),mood:memoMoodVal},function(res){
       if(res&&res.ok)console.log('メモを保存しました');
     });
   }
