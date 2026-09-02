@@ -1231,12 +1231,17 @@ function gateRegister(){
     });
 }
 
+function toMD(v){
+  if(v instanceof Date) return (v.getMonth()+1)+'/'+v.getDate();
+  var p=String(v).split('-');
+  return Number(p[1])+'/'+Number(p[2]);
+}
 function renderTopDeeds(){
   var card=document.getElementById('topDeedsCard');
   var list=document.getElementById('topDeedsList');
   if(!card||!list)return;
   var ref=typeof topDate!=='undefined'?topDate:TODAY;
-  var today=(ref.getMonth()+1)+'/'+ref.getDate();
+  var today=toMD(ref);
   var todayDeeds=ALL_DEEDS.filter(function(d){return d.date===today;});
   if(!todayDeeds.length){card.style.display='none';return;}
   card.style.display='';
@@ -1295,7 +1300,7 @@ function initApp(){
     }
   });
   /* fetch today's memories on startup */
-  var todayMd=TODAY_STR.slice(5).replace('-','/').replace(/^0/,'').replace('/0','/');
+  var todayMd=toMD(TODAY_STR);
   deedLoadForDate(todayMd);
   updateTopHeader();
   checkSolstice();
@@ -1745,7 +1750,7 @@ function deedCloseIfBg(e){if(e.target===document.getElementById('deedModalOverla
 function deedSaveContent(){
   var text=document.getElementById('deedText').value.trim();if(!text)return;
   var year=parseInt(document.getElementById('deedYear').value)||new Date().getFullYear();
-  var md=memoDiaryDate.slice(5).replace('-','/').replace(/^0/,'').replace('/0','/');
+  var md=toMD(memoDiaryDate);
   deedCloseModal();
   if(deedEditId!==null){
     var d=ALL_DEEDS.find(function(x){return x.id===deedEditId;});
@@ -2536,7 +2541,7 @@ function memoSwitchTab(tab){
   document.getElementById('memo-tab-'+tab).classList.add('active');
   memoRender();
   /* deedsタブ切替時はGASからデータ取得 */
-  if(tab==='deeds'){var _md=memoDiaryDate.slice(5).replace('-','/').replace(/^0/,'').replace('/0','/');deedLoadForDate(_md);}
+  if(tab==='deeds'){var _md=toMD(memoDiaryDate);deedLoadForDate(_md);}
   /* moodタブ切替時はグラフ描画 */
   if(tab==='mood'){moodGraphOffset=0;moodRenderGraph();}
 }function memoRenderPresets(){
@@ -2703,9 +2708,9 @@ function memoEdit(id){
   if(cats){MEMO_CAT_ORDER.forEach(function(c){var el=document.getElementById('mcat-'+c);if(el)cats.appendChild(el);});}
   memoRenderPresets();
 }
-function memoPrevDiary(){var d=new Date(memoDiaryDate);d.setDate(d.getDate()-1);memoDiaryDate=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');memoRender();if(memoTab==='deeds'){var _md=memoDiaryDate.slice(5).replace('-','/').replace(/^0/,'').replace('/0','/');deedLoadForDate(_md);}}
-function memoNextDiary(){if(memoDiaryDate>=TODAY_STR)return;var d=new Date(memoDiaryDate);d.setDate(d.getDate()+1);memoDiaryDate=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');memoRender();if(memoTab==='deeds'){var _md=memoDiaryDate.slice(5).replace('-','/').replace(/^0/,'').replace('/0','/');deedLoadForDate(_md);}}
-function memoGoToday(){memoDiaryDate=TODAY_STR;memoRender();if(memoTab==='deeds'){var _md=TODAY_STR.slice(5).replace('-','/').replace(/^0/,'').replace('/0','/');deedLoadForDate(_md);}}
+function memoPrevDiary(){var d=new Date(memoDiaryDate);d.setDate(d.getDate()-1);memoDiaryDate=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');memoRender();if(memoTab==='deeds'){var _md=toMD(memoDiaryDate);deedLoadForDate(_md);}}
+function memoNextDiary(){if(memoDiaryDate>=TODAY_STR)return;var d=new Date(memoDiaryDate);d.setDate(d.getDate()+1);memoDiaryDate=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');memoRender();if(memoTab==='deeds'){var _md=toMD(memoDiaryDate);deedLoadForDate(_md);}}
+function memoGoToday(){memoDiaryDate=TODAY_STR;memoRender();if(memoTab==='deeds'){var _md=toMD(TODAY_STR);deedLoadForDate(_md);}}
 function memoJumpToDiary(date){memoDiaryDate=date;memoSwitchTab('diary')}
 function memoSaveDiaryPrompt(){
   var el=document.getElementById('diaryPromptInput');if(!el)return;
@@ -3001,7 +3006,7 @@ function memoRenderDiary(){
   else html+='<div class="diary-empty">この日のメモはありません</div>';
   html+='</div>';
   /* この日の出来事 */
-  var md=memoDiaryDate.slice(5).replace('-','/').replace(/^0/,'').replace('/0','/');
+  var md=toMD(memoDiaryDate);
   var dayDeeds=ALL_DEEDS.filter(function(d){return d.date===md;});
   if(dayDeeds.length){
     html+='<div><div class="diary-section-label">この日の記憶</div>';
@@ -3053,7 +3058,7 @@ function memoRenderDeeds(){
     +'<div class="hdr-arr" onclick="memoNextDiary()" style="'+(isDeedToday?'visibility:hidden':'')+'">›</div>'
     +'</div>';
   var dayDeeds=ALL_DEEDS.filter(function(d){
-    var md=memoDiaryDate.slice(5).replace('-','/').replace(/^0/,'').replace('/0','');return d.date===md;
+    var md=toMD(memoDiaryDate);return d.date===md;
   });
   if(dayDeeds.length){
     dayDeeds.sort(function(a,b){return b.year-a.year}).forEach(function(d){
