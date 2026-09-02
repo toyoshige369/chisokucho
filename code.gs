@@ -7,21 +7,6 @@ function now() {
   return Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd HH:mm:ss');
 }
 
-function doGet(e) {
-  if (!e.parameter.action) {
-    return HtmlService.createHtmlOutputFromFile('index')
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
-      .setHeight(812);
-  }
-
-  var ss = SpreadsheetApp.openById(SS_ID);
-  var result = dispatch(e.parameter.action, e.parameter, ss);
-
-  return ContentService
-    .createTextOutput(JSON.stringify(result))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
 function dispatch(action, p, ss) {
   var result;
 
