@@ -407,11 +407,6 @@ html,body{
 .modal-cat-mind.active{background:rgba(211,178,89,.15);border-color:rgba(211,178,89,.3);color:var(--accent-deep);font-weight:700}
 
 /* ── 緊急ニュースバナー ── */
-.news-banner{background:#c94040;color:#fff;padding:5px 10px;display:flex;align-items:center;gap:6px;font-size:.68rem;font-weight:700;cursor:pointer;flex-shrink:0;z-index:10}
-.news-banner-dot{width:6px;height:6px;border-radius:50%;background:#fff;flex-shrink:0;animation:pulse-dot 1.2s ease-in-out infinite}
-.news-banner-text{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.news-banner-btn{font-size:.6rem;background:rgba(255,255,255,.2);border-radius:4px;padding:1px 6px;flex-shrink:0;white-space:nowrap}
-@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* ── 吉日輝き ── */
 @keyframes glow2{0%,100%{box-shadow:0 0 8px rgba(211,178,89,.3)}50%{box-shadow:0 0 18px rgba(211,178,89,.6)}}
@@ -557,18 +552,6 @@ html.unregistered #deviceGate{display:flex}
   <button class="solstice-close" onclick="closeSolstice()">閉じる</button>
 </div>
 
-<!-- ══ 緊急ニュース詳細モーダル ══ -->
-<div class="modal-overlay" id="newsModalOverlay" onclick="closeNewsModal(event)" style="z-index:250">
-  <div class="modal">
-    <div class="modal-title" style="color:#c94040">⚠ 緊急ニュース</div>
-    <div id="newsModalContent" style="font-size:.84rem;line-height:1.6;color:var(--text);margin-bottom:10px"></div>
-    <div class="modal-actions">
-      <button class="btn soft" onclick="document.getElementById('newsModalOverlay').classList.remove('open')">閉じる</button>
-      <button class="btn primary" style="background:#c94040">ソースを見る</button>
-    </div>
-  </div>
-</div>
-
 <!-- ══ カレンダーピッカー（全画面共通） ══ -->
 <div class="cal-overlay" id="calOverlay" onclick="calCloseIfBg(event)">
   <div class="cal-popup">
@@ -625,12 +608,6 @@ html.unregistered #deviceGate{display:flex}
   <!-- 誕生日バナー（誕生日のみ表示） -->
   <div class="birthday-banner" id="birthdayBanner" style="display:none;background:rgba(233,30,140,.08);border-bottom:1px solid rgba(233,30,140,.15);color:#c2185b;padding:5px 10px;font-size:.72rem;font-weight:700;align-items:center;gap:6px;flex-shrink:0">
     🪷 誕生日おめでとう♪応援してるよ！🪷
-  </div>
-  <!-- 緊急ニュースバナー -->
-  <div class="news-banner" id="newsBanner" onclick="openNewsModal()">
-    <div class="news-banner-dot"></div>
-    <div class="news-banner-text" id="newsBannerText">【気象警報】富士宮市に大雨警報が発令されました（気象庁 14:30）</div>
-    <div class="news-banner-btn">詳細</div>
   </div>
   <!-- サービス更新バナー -->
   <!-- Topヘッダーバー -->
@@ -1254,7 +1231,6 @@ function renderTopDeeds(){
   list.innerHTML=html;
 }
 function initApp(){
-  if(!NEWS_DATA)document.getElementById('newsBanner').style.display='none';
   renderTopLove();
   gasCall('getTasks',{},function(data){
     if(data)SCH_TASKS=data.map(function(t){
@@ -1304,10 +1280,6 @@ function initApp(){
   deedLoadForDate(todayMd);
   updateTopHeader();
   checkSolstice();
-  // iframeの高さをコンテンツに合わせる
-  try {
-    google.script.host.setHeight(window.innerHeight || document.documentElement.clientHeight);
-  } catch(e) {}
 }
 
 function renderTopTasks(){
@@ -1381,17 +1353,6 @@ switchView=function(v){currentView=v;origSwitchView(v);};
 var APP_CONFIG={
   birthday:'12-05',
 };
-
-/* 緊急ニュース */
-var NEWS_DATA=null; /* 将来：外部APIから取得予定 */
-function openNewsModal(){
-  if(!NEWS_DATA){document.getElementById('newsBanner').style.display='none';return;}
-  var el=document.getElementById('newsModalContent');
-  /* NEWS_DATAはモック固定値だが、将来外部取得になるためescapeHTML適用 */
-  el.innerHTML='<strong>'+escapeHTML(NEWS_DATA.text)+'</strong><br><span style="font-size:.72rem;color:var(--muted)">'+escapeHTML(NEWS_DATA.source)+' · '+escapeHTML(NEWS_DATA.time)+'</span>';
-  document.getElementById('newsModalOverlay').classList.add('open');
-}
-function closeNewsModal(e){if(e.target===document.getElementById('newsModalOverlay'))document.getElementById('newsModalOverlay').classList.remove('open')}
 
 /* 吉日輝き */
 function applyHeroGlow(){
@@ -3329,12 +3290,50 @@ function mindRender(){
   c.innerHTML=html;
 }
 
+/* Hidden version check: triple-tap heroDateMain within 800ms */
+var versionTapCount=0;
+var versionTapTimer=null;
+function heroDateMainTapHandler(e){
+  if(e.target.closest('.badge-return'))return;
+  versionTapCount++;
+  clearTimeout(versionTapTimer);
+  versionTapTimer=setTimeout(function(){versionTapCount=0;},800);
+  if(versionTapCount>=3){
+    versionTapCount=0;
+    clearTimeout(versionTapTimer);
+    showVersionInfo();
+  }
+}
+function fmtVersionDate(d){
+  return String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');
+}
+function showVersionInfo(){
+  showToast('版を確認中…');
+  var loadedVersion=new Date(document.lastModified);
+  var msgBase='読み込み中の版：'+fmtVersionDate(loadedVersion)+'\n';
+  fetch(location.pathname+'?v='+Date.now(),{method:'HEAD',cache:'no-store'}).then(function(res){
+    var lm=res.headers.get('Last-Modified');
+    var serverVersion=lm?new Date(lm):null;
+    var serverValid=serverVersion&&!isNaN(serverVersion.getTime());
+    if(!serverValid){
+      alert(msgBase+'サーバの最新版：確認できませんでした');
+      return;
+    }
+    var isOlder=serverVersion.getTime()>loadedVersion.getTime();
+    alert(msgBase+'サーバの最新版：'+fmtVersionDate(serverVersion)+'\n'+(isOlder?'→ 古い版です。アプリを一度閉じて開き直すと切り替わります':'→ 最新版です'));
+  }).catch(function(){
+    alert(msgBase+'サーバの最新版：確認できませんでした');
+  });
+}
+
 /* ══ アプリ起動 ══ */
 window.addEventListener('load',function(){
   if(!localStorage.getItem('chisokucho_device_key'))return;
   initApp();
   var seasonChip=document.querySelector('.chip.season');
   if(seasonChip){seasonChip.style.cursor='pointer';seasonChip.onclick=openSolstice;}
+  var heroDateMainEl=document.getElementById('heroDateMain');
+  if(heroDateMainEl)heroDateMainEl.addEventListener('click',heroDateMainTapHandler);
 });
 
 
