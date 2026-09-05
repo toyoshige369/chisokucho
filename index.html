@@ -3138,7 +3138,7 @@ function mindSaveContent(){
     MIND_MY.unshift({id:Date.now(),cat:mindNewCat,title:title,url:url,sub:sub,icon:mindNewIcon,taps:0,states:mindNewStates.slice()});
   }
   var savedMind=mindEditId!==null?MIND_MY.find(function(x){return x.id===mindEditId;}):MIND_MY[0];
-  if(savedMind)gasCall('saveMind',{id:savedMind.id,title:savedMind.title,sub:savedMind.sub||'',url:savedMind.url||'',cat:savedMind.cat||'audio',icon:savedMind.icon||'',taps:savedMind.taps||0,states:(savedMind.states||[]).join(',')},function(){});
+  if(savedMind)gasCall('saveMind',{id:savedMind.id,title:savedMind.title,sub:savedMind.sub||'',url:savedMind.url||'',cat:savedMind.cat||'audio',icon:savedMind.icon||'',taps:savedMind.taps||0,states:(savedMind.states||[]).join(','),from_ai:savedMind.from_ai?1:0},function(){});
   mindCloseModal();mindRender();
 }
 function mindToggleMore(){mindMoreOpen=!mindMoreOpen;var btn=document.getElementById('mindMoreToggle');var list=document.getElementById('mindMoreList');if(btn)btn.classList.toggle('open',mindMoreOpen);if(list)list.classList.toggle('open',mindMoreOpen)}
@@ -3203,7 +3203,7 @@ function mindTapCard(id){
   if(!m)return;
   if(m.url)window.open(m.url,'_blank','noopener,noreferrer');
   m.taps=(m.taps||0)+1;
-  gasCall('saveMind',{id:m.id,title:m.title,sub:m.sub||'',url:m.url||'',cat:m.cat||'audio',icon:m.icon||'',taps:m.taps,states:(m.states||[]).join(',')},function(){});
+  gasCall('saveMind',{id:m.id,title:m.title,sub:m.sub||'',url:m.url||'',cat:m.cat||'audio',icon:m.icon||'',taps:m.taps,states:(m.states||[]).join(','),from_ai:m.from_ai?1:0},function(){});
   mindRender();
 }
 /* 削除確認：…メニューをインライン確認UIに差し替える */
@@ -3252,7 +3252,7 @@ function showToast(msg){
 }
 function mindAiAdd(item){
   if(MIND_MY.find(function(x){return x.title===item.title;})){showToast('すでに追加済みです');return;}
-  var newItem={id:Date.now(),title:item.title,sub:item.sub||'',url:item.url||'',cat:item.cat||'audio',icon:item.icon||MIND_CAT_DEFAULT_ICON[item.cat||'audio']||'📎',taps:0,states:item.states||[]};
+  var newItem={id:Date.now(),title:item.title,sub:item.sub||'',url:item.url||'',cat:item.cat||'audio',icon:item.icon||MIND_CAT_DEFAULT_ICON[item.cat||'audio']||'📎',taps:0,states:item.states||[],from_ai:1};
   MIND_MY.unshift(newItem);
   gasCall('saveMind',{id:newItem.id,title:newItem.title,sub:newItem.sub,url:newItem.url||'',cat:newItem.cat,icon:newItem.icon,taps:0,states:(newItem.states||[]).join(','),from_ai:1},function(){});
   mindRender();

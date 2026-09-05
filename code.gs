@@ -34,7 +34,7 @@ function dispatch(action, p, ss) {
     } else if (action === 'getLove') {
       result = getLove(ss);
     } else if (action === 'saveLove') {
-      result = saveLove(ss, p.id, p.name, p.cat, p.color, p.textColor, p.pinned, p.love_level);
+      result = saveLove(ss, p.id, p.name, p.cat, p.color, p.textColor, p.pinned, p.love_level, p.memo);
     } else if (action === 'deleteLove') {
       result = deleteLove(ss, p.id);
     } else if (action === 'getEvents') {
@@ -314,7 +314,7 @@ function getLove(ss) {
   return result;
 }
 
-function saveLove(ss, id, name, cat, color, textColor, pinned, love_level) {
+function saveLove(ss, id, name, cat, color, textColor, pinned, love_level, memo) {
   var sheet = ss.getSheetByName('love');
   var rows = sheet.getDataRange().getValues();
   for (var i = 1; i < rows.length; i++) {
@@ -326,11 +326,12 @@ function saveLove(ss, id, name, cat, color, textColor, pinned, love_level) {
       sheet.getRange(i+1, 7).setValue(textColor||'');
       sheet.getRange(i+1, 8).setValue(pinned==='true');
       sheet.getRange(i+1, 9).setValue(Number(love_level)||1);
+      sheet.getRange(i+1, 10).setValue(memo||'');
       return {ok: true, action: 'updated'};
     }
   }
   sheet.insertRowBefore(2);
-  sheet.getRange(2,1,1,10).setValues([[String(id), now(), now(), name||'', cat||'', color||'', textColor||'', false, Number(love_level)||1, '']]);
+  sheet.getRange(2,1,1,10).setValues([[String(id), now(), now(), name||'', cat||'', color||'', textColor||'', false, Number(love_level)||1, memo||'']]);
   return {ok: true, action: 'inserted'};
 }
 
