@@ -3201,10 +3201,22 @@ function mindRenderCard(m){
 function mindTapCard(id){
   var m=MIND_MY.find(function(x){return x.id===id;});
   if(!m)return;
-  if(m.url)window.open(m.url,'_blank');
+  if(m.url)openExternal(m.url);
   m.taps=(m.taps||0)+1;
   gasCall('saveMind',{id:m.id,title:m.title,sub:m.sub||'',url:m.url||'',cat:m.cat||'audio',icon:m.icon||'',taps:m.taps,states:(m.states||[]).join(','),from_ai:m.from_ai?1:0},function(){});
   mindRender();
+}
+function openExternal(url){
+  var w=window.open('','_blank');
+  if(!w){location.href=url;return;}
+  w.opener=null;
+  w.location=url;
+  var back=function(){
+    if(document.visibilityState!=='visible')return;
+    document.removeEventListener('visibilitychange',back);
+    try{w.close();}catch(e){}
+  };
+  document.addEventListener('visibilitychange',back);
 }
 /* 削除確認：…メニューをインライン確認UIに差し替える */
 function showDeleteConfirm(msg,onConfirm){
