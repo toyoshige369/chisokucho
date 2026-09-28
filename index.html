@@ -483,7 +483,7 @@ html.unregistered #deviceGate{display:flex}
 <div id="deviceGate">
   <img src="assets/icon-192.png" alt="" style="width:64px;height:64px;border-radius:14px;margin-bottom:16px">
   <div style="font-size:.95rem;font-weight:700;color:var(--ink);margin-bottom:8px">端末の登録</div>
-  <div style="font-size:.78rem;color:var(--muted);text-align:center;max-width:260px;margin-bottom:20px">この端末で知足帳を使うために、一度だけ登録します。</div>
+  <div style="font-size:.78rem;color:var(--muted);text-align:center;max-width:260px;margin-bottom:20px">この端末を一度だけ登録します。</div>
   <input class="modal-input" id="gateSecret" type="password" placeholder="合言葉" style="max-width:240px">
   <input class="modal-input" id="gateLabel" type="text" placeholder="端末名（例：iPhone）" style="max-width:240px">
   <button class="btn primary" id="gateSubmit" onclick="gateRegister()" style="margin-top:6px;padding:8px 24px">登録</button>
@@ -605,10 +605,6 @@ html.unregistered #deviceGate{display:flex}
 
 <!-- ══════ TOP ══════ -->
 <div class="view active" id="view-top">
-  <!-- 誕生日バナー（誕生日のみ表示） -->
-  <div class="birthday-banner" id="birthdayBanner" style="display:none;background:rgba(233,30,140,.08);border-bottom:1px solid rgba(233,30,140,.15);color:#c2185b;padding:5px 10px;font-size:.72rem;font-weight:700;align-items:center;gap:6px;flex-shrink:0">
-    🪷 誕生日おめでとう♪応援してるよ！🪷
-  </div>
   <!-- サービス更新バナー -->
   <!-- Topヘッダーバー -->
   <div class="header">
@@ -633,7 +629,8 @@ html.unregistered #deviceGate{display:flex}
             <div class="date-main" id="heroDateMain"><span class="day"></span></div>
             <div class="hdr-arr" onclick="topNavDate(1)" style="font-size:1.2rem;color:#ccc;cursor:pointer;padding:0 2px">›</div>
           </div>
-          <div class="chips" style="margin-top:8px">
+          <!-- 暦機能の実装まで停止（暦チップ行を非表示） -->
+          <div class="chips" style="margin-top:8px;display:none">
             <div class="chip season">春分の日</div>
             <div class="chip em">大安</div>
             <div class="chip em">一粒万倍日</div>
@@ -660,7 +657,7 @@ html.unregistered #deviceGate{display:flex}
       <div id="topLoveList"></div>
     </div>
     <div class="card memory" id="topDeedsCard" style="display:none">
-      <div class="ch-ul" style="--ul-color:var(--c-memory)"><span class="ch-label" style="color:var(--c-memory)">この日の記憶</span><span class="ch-more" onclick="switchView('memo');memoSwitchTab('deeds')">もっと見る →</span></div>
+      <div class="ch-ul" style="--ul-color:var(--c-memory)"><span class="ch-label" style="color:var(--c-memory)">この日の記憶</span><span class="ch-more" onclick="switchView('memo');memoDiaryDate=schFmtDate(topDate);memoSwitchTab('deeds')">もっと見る →</span></div>
       <div id="topDeedsList"></div>
     </div>
   </div>
@@ -1223,7 +1220,8 @@ function renderTopDeeds(){
   if(!todayDeeds.length){card.style.display='none';return;}
   card.style.display='';
   var html='';
-  todayDeeds.slice(0,3).forEach(function(d){
+  /* 記憶タブと同じ基準：年の降順で並べてから先頭3件 */
+  todayDeeds.sort(function(a,b){return b.year-a.year}).slice(0,3).forEach(function(d){
     html+='<div style="font-size:.82rem;color:var(--ink);padding:5px 0;border-bottom:1px solid var(--line)">'
       +'<span style="font-size:.72rem;color:var(--muted);margin-right:6px">'+d.year+'年</span>'
       +escapeHTML(d.text)+'</div>';
@@ -1350,11 +1348,8 @@ var currentView='top';
 var origSwitchView=switchView;
 switchView=function(v){currentView=v;origSwitchView(v);};
 
-var APP_CONFIG={
-  birthday:'12-05',
-};
-
 /* 吉日輝き */
+/* 暦機能の実装まで停止（呼び出しを外している） */
 function applyHeroGlow(){
   var hero=document.getElementById('heroBlock');if(!hero)return;
   var kichijitsuCount=2;
@@ -1363,7 +1358,6 @@ function applyHeroGlow(){
   else if(kichijitsuCount===3)hero.classList.add('hero-glow3');
   else if(kichijitsuCount>=4)hero.classList.add('hero-glow4');
 }
-applyHeroGlow();
 
 /* 夜のメッセージ */
 function checkNightMsg(){
@@ -1373,16 +1367,6 @@ function checkNightMsg(){
 }
 checkNightMsg();
 
-/* 誕生日チェック */
-function checkBirthday(){
-  var today=new Date();
-  var mm=String(today.getMonth()+1).padStart(2,'0');
-  var dd=String(today.getDate()).padStart(2,'0');
-  var isBirthday=(mm+'-'+dd===APP_CONFIG.birthday);
-  var el=document.getElementById('birthdayBanner');
-  if(el) el.style.display=isBirthday?'flex':'none';
-}
-checkBirthday();
 
 
 /* 節目の日チェック */
@@ -2930,7 +2914,7 @@ function memoRenderDiary(){
   var moodEntry=MOOD.slice().filter(function(m){return m.recorded_at&&m.recorded_at.slice(0,10)===memoDiaryDate;}).sort(function(a,b){return b.recorded_at.localeCompare(a.recorded_at);})[0];
   var moodScore=moodEntry?moodEntry.score:40;
   var mc=moodColor(moodScore);var moodCol=mc.text;var moodBg=mc.bg;var moodBorder=mc.border;var moodRing=mc.ring;var moodRingBg=mc.ringBg;
-  var d=new Date(memoDiaryDate);var _ddw=d.getDay();var _dcol=_ddw===0?'#c94040':_ddw===6?'#1976d2':'';var _ddow='（'+DOW[_ddw]+'）';var dateLabel=(d.getMonth()+1)+'/'+d.getDate()+(_dcol?'<span style="color:'+_dcol+'">'+_ddow+'</span>':_ddow);
+  var d=new Date(memoDiaryDate);var _ddw=d.getDay();var _dcol=_ddw===0?'#c94040':_ddw===6?'#1976d2':'';var _ddow='（'+DOW[_ddw]+'）';var dateLabel=(d.getMonth()+1)+'月'+d.getDate()+'日'+(_dcol?'<span style="color:'+_dcol+'">'+_ddow+'</span>':_ddow);
   var jData=JOURNAL.find(function(j){return j.diary_date===memoDiaryDate})||{q:'',a:''};
   var g3=GOOD3[memoDiaryDate]||['','',''];
   var dayMemos=MEMOS.filter(function(m){return m.memo_date===memoDiaryDate&&!m.excludeDiary});
@@ -3012,7 +2996,7 @@ function memoRenderDeeds(){
   var html='<div class="diary-nav">'
     +'<div class="hdr-arr" onclick="memoPrevDiary()">‹</div>'
     +'<div style="cursor:pointer" onclick="openCal(\'diary\')">'
-    +'<div class="diary-date-label">'+memoDiaryDate.slice(5).replace('-','/')+'の記憶'
+    +'<div class="diary-date-label">'+Number(memoDiaryDate.slice(5,7))+'月'+Number(memoDiaryDate.slice(8,10))+'日の記憶'
     +(isDeedToday?'<span class="diary-today-badge">今日</span>':'<span class="badge-return" onclick="memoGoToday();event.stopPropagation()">今日へ</span>')
     +'</div>'
     +'</div>'
@@ -3274,7 +3258,8 @@ function mindRender(){
   var html='';
   {
     var myF=MIND_MY.filter(function(m){return(mindCat==='all'||m.cat===mindCat)&&(!mindStateFilter||(m.states&&m.states.indexOf(mindStateFilter)>=0));});
-    var aiF=MIND_AI.filter(function(m){return(mindCat==='all'||m.cat===mindCat)&&(!mindStateFilter||(m.states&&m.states.indexOf(mindStateFilter)>=0));});
+    /* マイリストに同じtitleがある提案は除外（mindAiAddの重複判定と同じ基準） */
+    var aiF=MIND_AI.filter(function(m){return(mindCat==='all'||m.cat===mindCat)&&(!mindStateFilter||(m.states&&m.states.indexOf(mindStateFilter)>=0))&&!MIND_MY.find(function(x){return x.title===m.title;});});
     var sorted=myF.slice().sort(function(a,b){return b.taps-a.taps});
     var maxV=Math.max(3,Math.floor(400/64));var visible=sorted.slice(0,maxV);var hidden=sorted.slice(maxV);
     html+='<div class="sec-label">マイリスト</div>';
