@@ -605,7 +605,6 @@ html.unregistered #deviceGate{display:flex}
 
 <!-- ══════ TOP ══════ -->
 <div class="view active" id="view-top">
-  <!-- サービス更新バナー -->
   <!-- Topヘッダーバー -->
   <div class="header">
     <div class="hdr-left">
@@ -621,7 +620,7 @@ html.unregistered #deviceGate{display:flex}
       <div class="night-msg-text">今日もお疲れさまでした。<br>ゆっくり休んでください。</div>
     </div>
 
-    <div class="hero hero-glow2" id="heroBlock" style="border-radius:0 18px 18px 0">
+    <div class="hero" id="heroBlock" style="border-radius:0 18px 18px 0">
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px">
         <div>
           <div style="display:flex;align-items:center;gap:6px">
@@ -1366,8 +1365,6 @@ function checkNightMsg(){
   if(el) el.style.display=h>=20?'flex':'none';
 }
 checkNightMsg();
-
-
 
 /* 節目の日チェック */
 var SOLSTICE_DATA={
