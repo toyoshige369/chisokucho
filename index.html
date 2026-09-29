@@ -1085,8 +1085,9 @@ function taskToggleMenu(e,id){
 function taskDelete(id){
   var backup=SCH_TASKS.slice();
   deleteWithUndo('タスク',
-    function(){SCH_TASKS=SCH_TASKS.filter(function(t){return t.id!==id;});renderTopTasks();if(schTab==='task')schRenderTask();gasCall('deleteTask',{id:id},function(){});},
-    function(){SCH_TASKS=backup;renderTopTasks();if(schTab==='task')schRenderTask();}
+    function(){SCH_TASKS=SCH_TASKS.filter(function(t){return t.id!==id;});renderTopTasks();if(schTab==='task')schRenderTask();},
+    function(){SCH_TASKS=backup;renderTopTasks();if(schTab==='task')schRenderTask();},
+    function(){gasCall('deleteTask',{id:id},function(){});}
   );
 }
 function taskEdit(id){
@@ -1675,8 +1676,9 @@ function deedToggleMenu(e,id){
 function deedDelete(id){
   var backup=ALL_DEEDS.slice();
   deleteWithUndo('記憶',
-    function(){ALL_DEEDS=ALL_DEEDS.filter(function(d){return d.id!==id;});gasCall('deleteDeed',{id:id},function(){});openDeedsView();},
-    function(){ALL_DEEDS=backup;openDeedsView();}
+    function(){ALL_DEEDS=ALL_DEEDS.filter(function(d){return d.id!==id;});openDeedsView();},
+    function(){ALL_DEEDS=backup;openDeedsView();},
+    function(){gasCall('deleteDeed',{id:id},function(){});}
   );
 }
 var deedEditId=null;
@@ -1770,8 +1772,9 @@ function schSaveEvent(){
 function schDeleteEvent(id){
   var backup=SCH_EVENTS.slice();
   deleteWithUndo('予定',
-    function(){SCH_EVENTS=SCH_EVENTS.filter(function(e){return e.id!==id;});gasCall('deleteEvent',{id:id},function(){});schRender();renderTopSchedule();},
-    function(){SCH_EVENTS=backup;schRender();renderTopSchedule();}
+    function(){SCH_EVENTS=SCH_EVENTS.filter(function(e){return e.id!==id;});schRender();renderTopSchedule();},
+    function(){SCH_EVENTS=backup;schRender();renderTopSchedule();},
+    function(){gasCall('deleteEvent',{id:id},function(){});}
   );
 }
 function schEditEvent(id){
@@ -2235,8 +2238,9 @@ function loveToggleCard(id){loveOpenId=loveOpenId===id?null:id;loveRender()}
 function loveDelete(id){
   var backup=LOVE_LIST.slice();
   deleteWithUndo('Love',
-    function(){LOVE_LIST=LOVE_LIST.filter(function(o){return o.id!==id;});gasCall('deleteLove',{id:id},function(){});loveRender();},
-    function(){LOVE_LIST=backup;loveRender();}
+    function(){LOVE_LIST=LOVE_LIST.filter(function(o){return o.id!==id;});loveRender();},
+    function(){LOVE_LIST=backup;loveRender();},
+    function(){gasCall('deleteLove',{id:id},function(){});}
   );
 }
 function loveOpenModal(){
@@ -2625,8 +2629,9 @@ document.addEventListener('click',function(){document.querySelectorAll('[id^="mm
 function memoDelete(id){
   var backup=MEMOS.slice();
   deleteWithUndo('メモ',
-    function(){MEMOS=MEMOS.filter(function(m){return m.id!==id;});memoRender();gasCall('deleteMemo',{id:id},function(){});},
-    function(){MEMOS=backup;memoRender();}
+    function(){MEMOS=MEMOS.filter(function(m){return m.id!==id;});memoRender();},
+    function(){MEMOS=backup;memoRender();},
+    function(){gasCall('deleteMemo',{id:id},function(){});}
   );
 }
 function memoEdit(id){
@@ -3139,8 +3144,9 @@ function mindToggleMenu(e,id){
 function mindDelete(id){
   var backup=MIND_MY.slice();
   deleteWithUndo('アイテム',
-    function(){MIND_MY=MIND_MY.filter(function(m){return m.id!==id;});gasCall('deleteMind',{id:id},function(){});mindRender();},
-    function(){MIND_MY=backup;mindRender();}
+    function(){MIND_MY=MIND_MY.filter(function(m){return m.id!==id;});mindRender();},
+    function(){MIND_MY=backup;mindRender();},
+    function(){gasCall('deleteMind',{id:id},function(){});}
   );
 }
 function mindEdit(id){
@@ -3216,22 +3222,33 @@ function showDeleteConfirm(msg,onConfirm){
   };
   menuEl.style.display='block';
 }
-/* 即削除＋元に戻すトースト */
+/* 削除＋元に戻すトースト：サーバーへの送信は3秒後（元に戻すで取り消し） */
 var _undoDeleteFn=null;
-function deleteWithUndo(deleteLabel,execFn,undoFn){
+var _pendingDeleteSend=null;
+function flushPendingDelete(){
+  if(!_pendingDeleteSend)return;
+  var send=_pendingDeleteSend;
+  _pendingDeleteSend=null;_undoDeleteFn=null;
+  clearTimeout(window._undoTimer);
+  var t=document.getElementById('toastMsg');
+  t.classList.remove('show');t.innerHTML='';
+  send();
+}
+function deleteWithUndo(deleteLabel,execFn,undoFn,sendFn){
+  flushPendingDelete();
   execFn();
   _undoDeleteFn=undoFn;
+  _pendingDeleteSend=sendFn;
   var t=document.getElementById('toastMsg');
   t.innerHTML=deleteLabel+'を削除しました　<span style="color:#d3b259;font-weight:700;cursor:pointer" onclick="undoDelete()">元に戻す</span>';
   t.classList.add('show');
   clearTimeout(window._undoTimer);
-  window._undoTimer=setTimeout(function(){
-    t.classList.remove('show');
-    _undoDeleteFn=null;
-    t.innerHTML='';
-  },3000);
+  window._undoTimer=setTimeout(flushPendingDelete,3000);
 }
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')flushPendingDelete();});
+window.addEventListener('pagehide',flushPendingDelete);
 function undoDelete(){
+  _pendingDeleteSend=null;
   if(_undoDeleteFn){_undoDeleteFn();_undoDeleteFn=null;}
   var t=document.getElementById('toastMsg');
   t.classList.remove('show');
