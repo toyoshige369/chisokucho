@@ -1193,7 +1193,7 @@ function gateRegister(){
       if(data&&data.ok===true&&data.deviceKey){
         localStorage.setItem('chisokucho_device_key',data.deviceKey);
         document.documentElement.className=document.documentElement.className.replace(/\bunregistered\b/,'').trim();
-        initApp();
+        bootApp();
       }else{
         msg.textContent='合言葉が違うようです';
         btn.disabled=false;
@@ -3338,13 +3338,19 @@ function showVersionInfo(){
 }
 
 /* ══ アプリ起動 ══ */
-window.addEventListener('load',function(){
-  if(!localStorage.getItem('chisokucho_device_key'))return;
+var bootTapBound=false; // 二重登録防止（鍵失効→再登録で bootApp が2回呼ばれても1回だけ登録）
+function bootApp(){
   initApp();
   var seasonChip=document.querySelector('.chip.season');
   if(seasonChip){seasonChip.style.cursor='pointer';seasonChip.onclick=openSolstice;}
-  var heroDateMainEl=document.getElementById('heroDateMain');
-  if(heroDateMainEl)heroDateMainEl.addEventListener('click',heroDateMainTapHandler);
+  if(!bootTapBound){
+    var heroDateMainEl=document.getElementById('heroDateMain');
+    if(heroDateMainEl){heroDateMainEl.addEventListener('click',heroDateMainTapHandler);bootTapBound=true;}
+  }
+}
+window.addEventListener('load',function(){
+  if(!localStorage.getItem('chisokucho_device_key'))return;
+  bootApp();
 });
 
 
